@@ -186,7 +186,7 @@ while True:
                     check_parameter_eax_ecb(data)
                 with open(data[0], 'rb') as file:
                     file = file.read()
-                cipher = EDF.Encrypt.des_ctr(file, data[1].encode(), data[2].encode())
+                cipher = EDF.Encrypt.des_eax(file, data[1].encode(), data[2].encode())
                 with open(f'{data[0]}.enc', 'wb') as file:
                     file.write(cipher)
 

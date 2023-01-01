@@ -40,7 +40,7 @@ class Encrypt:
         return cipher
 
 
-    #DES EAX
+    # DES EAX
     def des_eax(plain: bytes, key: bytes, iv) -> bytes:
         des = DES.new(key=key, mode=DES.MODE_EAX, nonce=iv)
 
@@ -52,7 +52,7 @@ class Encrypt:
         return cipher
 
 
-    #DES ECB
+    # DES ECB
     def des_ecb(plain: bytes, key: bytes) -> bytes:
         des = DES.new(key=key, mode=DES.MODE_ECB)
 

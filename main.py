@@ -69,7 +69,7 @@ def get_parameter(iv: bool):
     if iv:
         path = input('file path?:')
         key = input('key?:')
-        iv = input('iv?:')
+        iv = input('iv/nonce?:')
         return [path, key, iv]
     else:
         path = input('file path?:')
@@ -77,7 +77,7 @@ def get_parameter(iv: bool):
         return [path, key]
 
 
-import EDT
+import EDF
 
 
 while True:
@@ -108,7 +108,7 @@ while True:
                         break
                 with open(data[0], 'rb') as file:
                     file = file.read()
-                cipher = EDT.Encrypt.des_cbc(file, data[1].encode(), data[2].encode())
+                cipher = EDF.Encrypt.des_cbc(file, data[1].encode(), data[2].encode())
                 with open(f'{data[0]}.enc', 'wb') as file:
                     file.write(cipher)
 
@@ -127,9 +127,34 @@ while True:
                         break
                 with open(data[0], 'rb') as file:
                     file = file.read()
-                cipher = EDT.Encrypt.des_cfb(file, data[1].encode(), data[2].encode())
+                cipher = EDF.Encrypt.des_cfb(file, data[1].encode(), data[2].encode())
                 with open(f'{data[0]}.enc', 'wb') as file:
-                    file.write(cipher) 
+                    file.write(cipher)
+
+            elif mode == '3':
+                mode = '0'
+                # enc des ctr
+                while True:
+                    data = get_parameter(iv=True)
+                    if len(data[1]) != 8:
+                        print(f'Incorrect DES key length ({len(data[1])} bytes)')
+                        print('Should be 8 bytes')
+                    elif len(data[2]) >= 8:
+                        print(f'Incorrect DES iv length ({len(data[2])} bytes)')
+                        print('Should be smaller 8 bytes')
+                    else:
+                        break
+                with open(data[0], 'rb') as file:
+                    file = file.read()
+                cipher = EDF.Encrypt.des_ctr(file, data[1].encode(), data[2].encode())
+                with open(f'{data[0]}.enc', 'wb') as file:
+                    file.write(cipher)
+
+
+
+
+            elif mode == '9':
+                break
 
                 
 
@@ -158,7 +183,7 @@ while True:
                         break
                 with open(data[0], 'rb') as file:
                     file = file.read()
-                plain = EDT.Decrypt.des_cbc(file, data[1].encode(), data[2].encode())
+                plain = EDF.Decrypt.des_cbc(file, data[1].encode(), data[2].encode())
                 if data[0][-4:] == '.enc':
                     data[0] = data[0][:-3]
                 with open(f'{data[0]}', 'wb') as file:
@@ -179,7 +204,29 @@ while True:
                         break
                 with open(data[0], 'rb') as file:
                     file = file.read()
-                plain = EDT.Decrypt.des_cfb(file, data[1].encode(), data[2].encode())
+                plain = EDF.Decrypt.des_cfb(file, data[1].encode(), data[2].encode())
+                if data[0][-4:] == '.enc':
+                    data[0] = data[0][:-3]
+                with open(f'{data[0]}', 'wb') as file:
+                    file.write(plain)
+
+
+            elif mode == '3':
+                mode = '0'
+                # enc des ctr
+                while True:
+                    data = get_parameter(iv=True)
+                    if len(data[1]) != 8:
+                        print(f'Incorrect DES key length ({len(data[1])} bytes)')
+                        print('Should be 8 bytes')
+                    elif len(data[2]) >= 8:
+                        print(f'Incorrect DES iv length ({len(data[2])} bytes)')
+                        print('Should be smaller 8 bytes')
+                    else:
+                        break
+                with open(data[0], 'rb') as file:
+                    file = file.read()
+                plain = EDF.Decrypt.des_ctr(file, data[1].encode(), data[2].encode())
                 if data[0][-4:] == '.enc':
                     data[0] = data[0][:-3]
                 with open(f'{data[0]}', 'wb') as file:
@@ -187,5 +234,7 @@ while True:
 
 
 
+            elif mode == '9':
+                break
 
     print('Done!')

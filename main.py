@@ -95,7 +95,7 @@ def check_des_key(key):
     return True
 
 
-def check_parameter_cbc_cfb(para):
+def check_parameter_cbc_cfb_ofb(para):
     a = check_path(para[0])
     b = check_des_key(para[1])
     c = True
@@ -146,7 +146,7 @@ while True:
                 # enc des cbc
                 while loop:
                     data = get_parameter(iv=True)
-                    check_parameter_cbc_cfb(data)
+                    check_parameter_cbc_cfb_ofb(data)
                 with open(data[0], 'rb') as file:
                     file = file.read()
                 cipher = EDF.Encrypt.des_cbc(file, data[1].encode(), data[2].encode())
@@ -158,7 +158,7 @@ while True:
                 # enc des cfb
                 while loop:
                     data = get_parameter(iv=True)
-                    check_parameter_cbc_cfb(data)
+                    check_parameter_cbc_cfb_ofb(data)
                 with open(data[0], 'rb') as file:
                     file = file.read()
                 cipher = EDF.Encrypt.des_cfb(file, data[1].encode(), data[2].encode())
@@ -202,6 +202,21 @@ while True:
                 cipher = EDF.Encrypt.des_ecb(file, data[1].encode())
                 with open(f'{data[0]}.enc', 'wb') as file:
                     file.write(cipher)
+
+
+            elif mode == '6':
+                mode = '0'
+                # enc des ofb
+                while loop:
+                    data = get_parameter(iv=True)
+                    check_parameter_cbc_cfb_ofb(data)
+                with open(data[0], 'rb') as file:
+                    file = file.read()
+                cipher = EDF.Encrypt.des_ofb(file, data[1].encode(), data[2].encode())
+                with open(f'{data[0]}.enc', 'wb') as file:
+                    file.write(cipher)
+
+
             elif mode == '9':
                 break
 
@@ -222,7 +237,7 @@ while True:
                 # dec des cbc
                 while loop:
                     data = get_parameter(iv=True)
-                    check_parameter_cbc_cfb(data)
+                    check_parameter_cbc_cfb_ofb(data)
                 with open(data[0], 'rb') as file:
                     file = file.read()
                 plain = EDF.Decrypt.des_cbc(file, data[1].encode(), data[2].encode())
@@ -236,7 +251,7 @@ while True:
                 # dec des cfb
                 while loop:
                     data = get_parameter(iv=True)
-                    check_parameter_cbc_cfb(data)
+                    check_parameter_cbc_cfb_ofb(data)
                 with open(data[0], 'rb') as file:
                     file = file.read()
                 plain = EDF.Decrypt.des_cfb(file, data[1].encode(), data[2].encode())
@@ -291,6 +306,19 @@ while True:
                     file.write(plain)
 
 
+            elif mode == '6':
+                mode = '0'
+                # enc des ofb
+                while loop:
+                    data = get_parameter(iv=True)
+                    check_parameter_cbc_cfb_ofb(data)
+                with open(data[0], 'rb') as file:
+                    file = file.read()
+                plain = EDF.Decrypt.des_ofb(file, data[1].encode(), data[2].encode())
+                if data[0][-4:] == '.enc':
+                    data[0] = data[0][:-3]
+                with open(f'{data[0]}', 'wb') as file:
+                    file.write(plain)
 
 
 

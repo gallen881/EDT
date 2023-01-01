@@ -63,6 +63,18 @@ class Encrypt:
 
         return cipher
 
+
+    # DES OFB
+    def des_ofb(plain: bytes, key: bytes, iv) -> bytes:
+        des = DES.new(key=key, mode=DES.MODE_OFB, iv=iv)
+
+        cipher = des.encrypt(plain)
+
+        des = DES.new(key=key, mode=DES.MODE_OFB, iv=iv)
+        assert plain == des.decrypt(cipher)
+
+        return cipher
+
 class Decrypt:
     def des_cbc(cipher: bytes, key: bytes, iv) -> bytes:
         des = DES.new(key=key, mode=DES.MODE_CBC, iv=iv)
@@ -118,5 +130,17 @@ class Decrypt:
 
         des = DES.new(key=key, mode=DES.MODE_ECB)
         assert cipher == des.encrypt(pad(plain, DES.block_size))
+
+        return plain
+
+
+    # DES OFB
+    def des_ofb(cipher: bytes, key: bytes, iv) -> bytes:
+        des = DES.new(key=key, mode=DES.MODE_OFB, iv=iv)
+
+        plain = des.decrypt(cipher)
+
+        des = DES.new(key=key, mode=DES.MODE_OFB, iv=iv)
+        assert cipher == des.encrypt(plain)
 
         return plain

@@ -39,6 +39,30 @@ class Encrypt:
 
         return cipher
 
+
+    #DES EAX
+    def des_eax(plain: bytes, key: bytes, iv) -> bytes:
+        des = DES.new(key=key, mode=DES.MODE_EAX, nonce=iv)
+
+        cipher = des.encrypt(plain)
+
+        des = DES.new(key=key, mode=DES.MODE_EAX, nonce=iv)
+        assert plain == des.decrypt(cipher)
+
+        return cipher
+
+
+    #DES ECB
+    def des_ecb(plain: bytes, key: bytes) -> bytes:
+        des = DES.new(key=key, mode=DES.MODE_ECB)
+
+        cipher = des.encrypt(pad(plain, DES.block_size))
+
+        des = DES.new(key=key, mode=DES.MODE_ECB)
+        assert plain == unpad(des.decrypt(cipher), DES.block_size)
+
+        return cipher
+
 class Decrypt:
     def des_cbc(cipher: bytes, key: bytes, iv) -> bytes:
         des = DES.new(key=key, mode=DES.MODE_CBC, iv=iv)
@@ -70,5 +94,29 @@ class Decrypt:
 
         des = DES.new(key=key, mode=DES.MODE_CTR, nonce=iv)
         assert cipher == des.encrypt(plain)
+
+        return plain
+
+
+    # DES EAX
+    def des_eax(cipher: bytes, key: bytes, iv) -> bytes:
+        des = DES.new(key=key, mode=DES.MODE_EAX, nonce=iv)
+
+        plain = des.decrypt(cipher)
+
+        des = DES.new(key=key, mode=DES.MODE_EAX, nonce=iv)
+        assert cipher == des.encrypt(plain)
+
+        return plain
+
+
+    # DES ECB
+    def des_ecb(cipher: bytes, key: bytes,) -> bytes:
+        des = DES.new(key=key, mode=DES.MODE_ECB)
+
+        plain = unpad(des.decrypt(cipher), DES.block_size)
+
+        des = DES.new(key=key, mode=DES.MODE_ECB)
+        assert cipher == des.encrypt(pad(plain, DES.block_size))
 
         return plain

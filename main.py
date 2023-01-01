@@ -64,6 +64,8 @@ def print_mode(l, da=None):
             print('(13): Exit')
 
 
+loop = True
+
 
 def get_parameter(iv: bool):
     if iv:
@@ -75,6 +77,52 @@ def get_parameter(iv: bool):
         path = input('file path?:')
         key = input('key?:')
         return [path, key]
+
+import os
+
+def check_path(path):
+    if not os.path.exists(path):
+        print('Wrong path')
+        return False
+    return True
+
+
+def check_des_key(key):
+    if len(key) != 8:
+        print(f'Incorrect DES key length ({len(key)} bytes)')
+        print('Should be 8 bytes')
+        return False
+    return True
+
+
+def check_parameter_cbc_cfb(para):
+    a = check_path(para[0])
+    b = check_des_key(para[1])
+    c = True
+    if len(para[2]) != 8:
+        print(f'Incorrect DES iv length ({len(para[2])} bytes)')
+        print('Should be 8 bytes')
+        c = False
+    if a and b and c:
+        global loop
+        loop = False
+
+def check_parameter_ctr(para):
+    a = check_path(para[0])
+    b = check_des_key(para[1])
+    c = True
+    if len(para[2]) >= 8:
+        print(f'Incorrect DES iv length ({len(para[2])} bytes)')
+        print('Should be smaller 8 bytes')
+        c = False
+    if a and b and c:
+        global loop
+        loop = False
+
+def check_parameter_eax_ecb(para):
+    if check_path(para[0]) and check_des_key(para[1]):
+        global loop
+        loop = False
 
 
 import EDF
@@ -96,16 +144,9 @@ while True:
             if mode == '1':
                 mode = '0'
                 # enc des cbc
-                while True:
+                while loop:
                     data = get_parameter(iv=True)
-                    if len(data[1]) != 8:
-                        print(f'Incorrect DES key length ({len(data[1])} bytes)')
-                        print('Should be 8 bytes')
-                    elif len(data[2]) != 8:
-                        print(f'Incorrect DES iv length ({len(data[2])} bytes)')
-                        print('Should be 8 bytes')
-                    else:
-                        break
+                    check_parameter_cbc_cfb(data)
                 with open(data[0], 'rb') as file:
                     file = file.read()
                 cipher = EDF.Encrypt.des_cbc(file, data[1].encode(), data[2].encode())
@@ -115,16 +156,9 @@ while True:
             elif mode == '2':
                 mode = '0'
                 # enc des cfb
-                while True:
+                while loop:
                     data = get_parameter(iv=True)
-                    if len(data[1]) != 8:
-                        print(f'Incorrect DES key length ({len(data[1])} bytes)')
-                        print('Should be 8 bytes')
-                    elif len(data[2]) != 8:
-                        print(f'Incorrect DES iv length ({len(data[2])} bytes)')
-                        print('Should be 8 bytes')
-                    else:
-                        break
+                    check_parameter_cbc_cfb(data)
                 with open(data[0], 'rb') as file:
                     file = file.read()
                 cipher = EDF.Encrypt.des_cfb(file, data[1].encode(), data[2].encode())
@@ -134,16 +168,9 @@ while True:
             elif mode == '3':
                 mode = '0'
                 # enc des ctr
-                while True:
+                while loop:
                     data = get_parameter(iv=True)
-                    if len(data[1]) != 8:
-                        print(f'Incorrect DES key length ({len(data[1])} bytes)')
-                        print('Should be 8 bytes')
-                    elif len(data[2]) >= 8:
-                        print(f'Incorrect DES iv length ({len(data[2])} bytes)')
-                        print('Should be smaller 8 bytes')
-                    else:
-                        break
+                    check_parameter_ctr(data)
                 with open(data[0], 'rb') as file:
                     file = file.read()
                 cipher = EDF.Encrypt.des_ctr(file, data[1].encode(), data[2].encode())
@@ -151,8 +178,30 @@ while True:
                     file.write(cipher)
 
 
+            elif mode == '4':
+                mode = '0'
+                # enc des eax
+                while loop:
+                    data = get_parameter(iv=True)
+                    check_parameter_eax_ecb(data)
+                with open(data[0], 'rb') as file:
+                    file = file.read()
+                cipher = EDF.Encrypt.des_ctr(file, data[1].encode(), data[2].encode())
+                with open(f'{data[0]}.enc', 'wb') as file:
+                    file.write(cipher)
 
 
+            elif mode == '5':
+                mode = '0'
+                # enc des ecb
+                while loop:
+                    data = get_parameter(iv=False)
+                    check_parameter_eax_ecb(data)
+                with open(data[0], 'rb') as file:
+                    file = file.read()
+                cipher = EDF.Encrypt.des_ecb(file, data[1].encode())
+                with open(f'{data[0]}.enc', 'wb') as file:
+                    file.write(cipher)
             elif mode == '9':
                 break
 
@@ -171,16 +220,9 @@ while True:
             if mode == '1':
                 mode = '0'
                 # dec des cbc
-                while True:
+                while loop:
                     data = get_parameter(iv=True)
-                    if len(data[1]) != 8:
-                        print(f'Incorrect DES key length ({len(data[1])} bytes)')
-                        print('Should be 8 bytes')
-                    elif len(data[2]) != 8:
-                        print(f'Incorrect DES iv length ({len(data[2])} bytes)')
-                        print('Should be 8 bytes')
-                    else:
-                        break
+                    check_parameter_cbc_cfb(data)
                 with open(data[0], 'rb') as file:
                     file = file.read()
                 plain = EDF.Decrypt.des_cbc(file, data[1].encode(), data[2].encode())
@@ -192,16 +234,9 @@ while True:
             if mode == '2':
                 mode = '0'
                 # dec des cfb
-                while True:
+                while loop:
                     data = get_parameter(iv=True)
-                    if len(data[1]) != 8:
-                        print(f'Incorrect DES key length ({len(data[1])} bytes)')
-                        print('Should be 8 bytes')
-                    elif len(data[2]) != 8:
-                        print(f'Incorrect DES iv length ({len(data[2])} bytes)')
-                        print('Should be 8 bytes')
-                    else:
-                        break
+                    check_parameter_cbc_cfb(data)
                 with open(data[0], 'rb') as file:
                     file = file.read()
                 plain = EDF.Decrypt.des_cfb(file, data[1].encode(), data[2].encode())
@@ -214,16 +249,9 @@ while True:
             elif mode == '3':
                 mode = '0'
                 # enc des ctr
-                while True:
+                while loop:
                     data = get_parameter(iv=True)
-                    if len(data[1]) != 8:
-                        print(f'Incorrect DES key length ({len(data[1])} bytes)')
-                        print('Should be 8 bytes')
-                    elif len(data[2]) >= 8:
-                        print(f'Incorrect DES iv length ({len(data[2])} bytes)')
-                        print('Should be smaller 8 bytes')
-                    else:
-                        break
+                    check_parameter_ctr(data)
                 with open(data[0], 'rb') as file:
                     file = file.read()
                 plain = EDF.Decrypt.des_ctr(file, data[1].encode(), data[2].encode())
@@ -233,8 +261,42 @@ while True:
                     file.write(plain)
 
 
+            elif mode == '4':
+                mode = '0'
+                # enc des eax
+                while loop:
+                    data = get_parameter(iv=True)
+                    check_parameter_eax_ecb(data)
+                with open(data[0], 'rb') as file:
+                    file = file.read()
+                plain = EDF.Decrypt.des_eax(file, data[1].encode(), data[2].encode())
+                if data[0][-4:] == '.enc':
+                    data[0] = data[0][:-3]
+                with open(f'{data[0]}', 'wb') as file:
+                    file.write(plain)
+
+
+            elif mode == '5':
+                mode = '0'
+                # enc des ecb
+                while loop:
+                    data = get_parameter(iv=False)
+                    check_parameter_eax_ecb(data)
+                with open(data[0], 'rb') as file:
+                    file = file.read()
+                plain = EDF.Decrypt.des_ecb(file, data[1].encode())
+                if data[0][-4:] == '.enc':
+                    data[0] = data[0][:-3]
+                with open(f'{data[0]}', 'wb') as file:
+                    file.write(plain)
+
+
+
+
+
 
             elif mode == '9':
                 break
 
     print('Done!')
+    loop = True

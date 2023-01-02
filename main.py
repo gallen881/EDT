@@ -1,4 +1,4 @@
-VERSION = '1.0.1'
+VERSION = '1.1.1'
 
 
 print(' EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE          DDDDDDDDDDDDDDDDDDDDDD                    TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT')
@@ -23,6 +23,12 @@ print(f'Encrypt & Decrypt Tool    v{VERSION}')
 
 
 ##################################################################################################################################
+
+
+import os
+import colorama
+from Cryptodome.Cipher import DES
+from Cryptodome.Cipher import DES3
 
 
 def print_mode(l, da=None):
@@ -89,49 +95,66 @@ def get_payload(iv: bool):
         key = input('key?:')
         return [path, key]
 
-import os
 
-def check_path(path):
+def check_path(path: str):
     if not os.path.exists(path):
-        print('Wrong path')
+        print(colorama.Fore.RED, 'Wrong path', colorama.Fore.RESET)
         return False
     return True
 
 
-def check_des_key(key):
-    if len(key) != 8:
-        print(f'Incorrect DES key length ({len(key)} bytes)')
-        print('Should be 8 bytes')
+def check_des_key(key: bytes):
+    if len(key.encode()) != DES.key_size:
+        print(f'{colorama.Fore.RED}Incorrect DES key length ({len(key)} bytes)')
+        print(f'Should be {DES.key_size} bytes', colorama.Fore.RESET)
+        return False
+    return True
+
+def check_3des_key(key: bytes):
+    if len(key.encode()) not in  DES3.key_size:
+        print(f'{colorama.Fore.RED}Incorrect DES key length ({len(key)} bytes)')
+        print(f'Should be {DES3.key_size[0]} or {DES3.key_size[1]} bytes{colorama.Fore.RESET}')
         return False
     return True
 
 
-def check_payload_cbc_cfb_ofb(para):
+def check_payload_cbc_cfb_ofb(para, d3):
     a = check_path(para[0])
-    b = check_des_key(para[1])
+    if d3 == 'd':
+        b = check_des_key(para[1])
+    elif d3 == 'ddd':
+        b = check_3des_key(para[1])
     c = True
     if len(para[2]) != 8:
-        print(f'Incorrect DES iv length ({len(para[2])} bytes)')
-        print('Should be 8 bytes')
+        print(f'{colorama.Fore.RED}Incorrect DES iv length ({len(para[2])} bytes)')
+        print('Should be 8 bytes', colorama.Fore.RESET)
         c = False
     if a and b and c:
         global loop
         loop = False
 
-def check_payload_ctr(para):
+def check_payload_ctr(para, d3):
     a = check_path(para[0])
-    b = check_des_key(para[1])
+    if d3 == 'd':
+        b = check_des_key(para[1])
+    elif d3 == 'ddd':
+        b = check_3des_key(para[1])
     c = True
     if len(para[2]) >= 8:
-        print(f'Incorrect DES iv length ({len(para[2])} bytes)')
-        print('Should be smaller 8 bytes')
+        print(f'{colorama.Fore.RED}Incorrect DES iv length ({len(para[2])} bytes)')
+        print('Should be smaller 8 bytes', colorama.Fore.RESET)
         c = False
     if a and b and c:
         global loop
         loop = False
 
-def check_payload_eax_ecb(para):
-    if check_path(para[0]) and check_des_key(para[1]):
+def check_payload_eax_ecb(para, d3):
+    a = check_path(para[0])
+    if d3 == 'd':
+        b = check_des_key(para[1])
+    elif d3 == 'ddd':
+        b = check_3des_key(para[1])
+    if a and b:
         global loop
         loop = False
 
@@ -181,150 +204,260 @@ def rw(payload: list, enc: list, padding=None, de=None):
 
     print('Done!')
 
-from Cryptodome.Cipher import DES
-from Cryptodome.Cipher import DES3
 
 
 while True:
-
-    print_mode('l1')
-    mode = input('?:')
-
-    if mode == '1':
-        print_mode('l2')
+    try:
+        print_mode('l1')
         mode = input('?:')
 
         if mode == '1':
-            print_mode('l3', 'd')
+            print_mode('l2')
             mode = input('?:')
 
             if mode == '1':
-                mode = '0'
-                # enc des cbc
-                while loop:
-                    payload = get_payload(iv=True)
-                    check_payload_cbc_cfb_ofb(payload)
-                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode())], padding=DES.block_size, de='enc')
+                print_mode('l3', 'd')
+                mode = input('?:')
+
+                if mode == '1':
+                    mode = '0'
+                    # enc des cbc
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_cbc_cfb_ofb(payload, 'd')
+                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode())], padding=DES.block_size, de='enc')
+
+
+                elif mode == '2':
+                    mode = '0'
+                    # enc des cfb
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_cbc_cfb_ofb(payload, 'd')
+                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode())], de='enc')
+
+                elif mode == '3':
+                    mode = '0'
+                    # enc des ctr
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_ctr(payload, 'd')
+                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode())], de='enc')
+
+                elif mode == '4':
+                    mode = '0'
+                    # enc des eax
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_eax_ecb(payload, 'd')
+                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode())], de='enc')
+
+
+                elif mode == '5':
+                    mode = '0'
+                    # enc des ecb
+                    while loop:
+                        payload = get_payload(iv=False)
+                        check_payload_eax_ecb(payload, 'd')
+                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_ECB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_ECB)], padding=DES.block_size, de='enc')
+
+
+                elif mode == '6':
+                    mode = '0'
+                    # enc des ofb
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_cbc_cfb_ofb(payload, 'd')
+                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode())], de='enc')
+
+
+                elif mode == '9':
+                    break
+
+            elif mode == '2':
+                print_mode('l3', 'd')
+                mode = input('?:')
+
+                if mode == '1':
+                    mode = '0'
+                    # enc 3des cbc
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_cbc_cfb_ofb(payload, 'ddd')
+                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_CBC, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_CBC, iv=payload[2].encode())], padding=DES3.block_size, de='enc')
+
+
+                elif mode == '2':
+                    mode = '0'
+                    # enc 3des cfb
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_cbc_cfb_ofb(payload, 'ddd')
+                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_CFB, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_CFB, iv=payload[2].encode())], de='enc')
+
+                elif mode == '3':
+                    mode = '0'
+                    # enc 3des ctr
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_ctr(payload, 'ddd')
+                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_CTR, nonce=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_CTR, nonce=payload[2].encode())], de='enc')
+
+                elif mode == '4':
+                    mode = '0'
+                    # enc 3des eax
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_eax_ecb(payload, 'ddd')
+                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_EAX, nonce=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_EAX, nonce=payload[2].encode())], de='enc')
+
+
+                elif mode == '5':
+                    mode = '0'
+                    # enc 3des ecb
+                    while loop:
+                        payload = get_payload(iv=False)
+                        check_payload_eax_ecb(payload, 'ddd')
+                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_ECB, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_ECB)], padding=DES3.block_size, de='enc')
+
+
+                elif mode == '6':
+                    mode = '0'
+                    # enc 3des ofb
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_cbc_cfb_ofb(payload, 'ddd')
+                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_OFB, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_OFB, iv=payload[2].encode())], de='enc')
+
+
+        elif mode == '2':
+            print_mode('l2')
+            mode = input('?:')
+
+            if mode == '1':
+                print_mode('l3')
+                mode = input('?:')
+
+                if mode == '1':
+                    mode = '0'
+                    # dec des cbc
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_cbc_cfb_ofb(payload, 'd')
+                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode())], padding=DES.block_size, de='dec')
+                
+                if mode == '2':
+                    mode = '0'
+                    # dec des cfb
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_cbc_cfb_ofb(payload, 'd')
+                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode())], de='dec')
+
+
+                elif mode == '3':
+                    mode = '0'
+                    # dec des ctr
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_ctr(payload, 'd')
+                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode())], de='dec')
+
+                elif mode == '4':
+                    mode = '0'
+                    # dec des eax
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_eax_ecb(payload, 'd')
+                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode())], de='dec')
+
+                elif mode == '5':
+                    mode = '0'
+                    # dec des ecb
+                    while loop:
+                        payload = get_payload(iv=False)
+                        check_payload_eax_ecb(payload, 'd')
+                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_ECB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_ECB)], padding=DES.block_size, de='dec')
+
+
+                elif mode == '6':
+                    mode = '0'
+                    # dec des ofb
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_cbc_cfb_ofb(payload, 'd')
+                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode())], de='dec')
 
 
             elif mode == '2':
-                mode = '0'
-                # enc des cfb
-                while loop:
-                    payload = get_payload(iv=True)
-                    check_payload_cbc_cfb_ofb(payload)
-                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode())], de='enc')
+                print_mode('l3')
+                mode = input('?:')
 
-            elif mode == '3':
-                mode = '0'
-                # enc des ctr
-                while loop:
-                    payload = get_payload(iv=True)
-                    check_payload_ctr(payload)
-                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode())], de='enc')
-
-            elif mode == '4':
-                mode = '0'
-                # enc des eax
-                while loop:
-                    payload = get_payload(iv=True)
-                    check_payload_eax_ecb(payload)
-                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode())], de='enc')
-
-
-            elif mode == '5':
-                mode = '0'
-                # enc des ecb
-                while loop:
-                    payload = get_payload(iv=False)
-                    check_payload_eax_ecb(payload)
-                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_ECB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_ECB)], padding=DES.block_size, de='enc')
-
-
-            elif mode == '6':
-                mode = '0'
-                # enc des ofb
-                while loop:
-                    payload = get_payload(iv=True)
-                    check_payload_cbc_cfb_ofb(payload)
-                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode())], de='enc')
-
-
-            elif mode == '9':
-                break
-
+                if mode == '1':
+                    mode = '0'
+                    # dec 3des cbc
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_cbc_cfb_ofb(payload, 'ddd')
+                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_CBC, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_CBC, iv=payload[2].encode())], padding=DES3.block_size, de='dec')
                 
+                if mode == '2':
+                    mode = '0'
+                    # dec 3des cfb
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_cbc_cfb_ofb(payload, 'ddd')
+                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_CFB, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_CFB, iv=payload[2].encode())], de='dec')
 
 
+                elif mode == '3':
+                    mode = '0'
+                    # dec 3des ctr
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_ctr(payload, 'ddd')
+                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_CTR, nonce=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_CTR, nonce=payload[2].encode())], de='dec')
 
-    if mode == '2':
-        print_mode('l2')
-        mode = input('?:')
+                elif mode == '4':
+                    mode = '0'
+                    # dec 3des eax
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_eax_ecb(payload, 'ddd')
+                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_EAX, nonce=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_EAX, nonce=payload[2].encode())], de='dec')
 
-        if mode == '1':
-            print_mode('l3')
-            mode = input('?:')
-
-            if mode == '1':
-                mode = '0'
-                # dec des cbc
-                while loop:
-                    payload = get_payload(iv=True)
-                    check_payload_cbc_cfb_ofb(payload)
-                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode())], padding=DES.block_size, de='dec')
-            
-            if mode == '2':
-                mode = '0'
-                # dec des cfb
-                while loop:
-                    payload = get_payload(iv=True)
-                    check_payload_cbc_cfb_ofb(payload)
-                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode())], de='dec')
-
-
-            elif mode == '3':
-                mode = '0'
-                # enc des ctr
-                while loop:
-                    payload = get_payload(iv=True)
-                    check_payload_ctr(payload)
-                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode())], de='dec')
-
-            elif mode == '4':
-                mode = '0'
-                # enc des eax
-                while loop:
-                    payload = get_payload(iv=True)
-                    check_payload_eax_ecb(payload)
-                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode())], de='dec')
-
-            elif mode == '5':
-                mode = '0'
-                # enc des ecb
-                while loop:
-                    payload = get_payload(iv=False)
-                    check_payload_eax_ecb(payload)
-                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_ECB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_ECB)], padding=DES.block_size, de='dec')
+                elif mode == '5':
+                    mode = '0'
+                    # dec 3des ecb
+                    while loop:
+                        payload = get_payload(iv=False)
+                        check_payload_eax_ecb(payload, 'ddd')
+                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_ECB, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_ECB)], padding=DES3.block_size, de='dec')
 
 
-            elif mode == '6':
-                mode = '0'
-                # enc des ofb
-                while loop:
-                    payload = get_payload(iv=True)
-                    check_payload_cbc_cfb_ofb(payload)
-                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode())], de='dec')
+                elif mode == '6':
+                    mode = '0'
+                    # dec 3des ofb
+                    while loop:
+                        payload = get_payload(iv=True)
+                        check_payload_cbc_cfb_ofb(payload, 'ddd')
+                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_OFB, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_OFB, iv=payload[2].encode())], de='dec')
 
 
 
 
-            elif mode == '9':
-                break
+                elif mode == '9':
+                    break
 
-    elif mode == '4' or 'info' or 'version':
-        info()
+        elif mode == '4' or 'info' or 'version':
+            info()
 
-    elif mode == '5' or 'exit' or 'leave':
-        os._exit(0)
+        elif mode == '5' or 'exit' or 'leave':
+            os._exit(0)
+
+    
+    except Exception as e:
+        print(colorama.Fore.RED, e, colorama.Fore.RESET)
+
 
     loop = True

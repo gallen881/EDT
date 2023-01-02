@@ -1,34 +1,39 @@
-VERSION = '1.1.1'
+VERSION = '1.2.0'
 
 
-print(' EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE          DDDDDDDDDDDDDDDDDDDDDD                    TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT')
-print('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDDDDDDDDDDDDDDDDDDD                  TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT')
-print('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDDDDDDDDDDDDDDDDDDDDD                TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT')
-print('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE         DDDDDDDD             DDDDDDDD              TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT')
-print('EEEEEEEEE                                  DDDDDDDD               DDDDDDDD                         TTTTTTTTT             ')
-print('EEEEEEEE                                   DDDDDDDD                 DDDDDDDD                       TTTTTTTTT             ')
-print('EEEEEEEEE                                  DDDDDDDD                  DDDDDDDD                      TTTTTTTTT             ')
-print('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE         DDDDDDDD                   DDDDDDDD                     TTTTTTTTT             ')
-print('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDD                   DDDDDDDD                     TTTTTTTTT             ')
-print('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDD                   DDDDDDDD                     TTTTTTTTT             ')
-print('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE         DDDDDDDD                   DDDDDDDD                     TTTTTTTTT             ')
-print('EEEEEEEEE                                  DDDDDDDD                  DDDDDDDD                      TTTTTTTTT             ')
-print('EEEEEEEE                                   DDDDDDDD                 DDDDDDDD                       TTTTTTTTT             ')
-print('EEEEEEEEE                                  DDDDDDDD               DDDDDDDD                         TTTTTTTTT             ')
-print('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE         DDDDDDDD             DDDDDDDD                           TTTTTTTTT             ')
-print('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDDDDDDDDDDDDDDDDDDDDD                             TTTTTTTTT             ')
-print('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDDDDDDDDDDDDDDDDDDD                               TTTTTTTTT             ')
-print(' EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE          DDDDDDDDDDDDDDDDDDDDDD                                 TTTTTTTTT             ')
+print('+——————————————————————————————————————————————————————————————+')
+print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE         DDDDDDDDDDDDDDDDDDDDDD                    TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT  |')
+print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDDDDDDDDDDDDDDDDDDD                  TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT  |')
+print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDDDDDDDDDDDDDDDDDDDDD                TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT  |')
+print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDD             DDDDDDDD              TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT  |')
+print('| EEEEEEEEE                                  DDDDDDDD               DDDDDDDD                         TTTTTTTTT               |')
+print('| EEEEEEEEE                                  DDDDDDDD                 DDDDDDDD                       TTTTTTTTT               |')
+print('| EEEEEEEEE                                  DDDDDDDD                  DDDDDDDD                      TTTTTTTTT               |')
+print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDD                   DDDDDDDD                     TTTTTTTTT               |')
+print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDD                   DDDDDDDD                     TTTTTTTTT               |')
+print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDD                   DDDDDDDD                     TTTTTTTTT               |')
+print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDD                   DDDDDDDD                     TTTTTTTTT               |')
+print('| EEEEEEEEE                                  DDDDDDDD                  DDDDDDDD                      TTTTTTTTT               |')
+print('| EEEEEEEEE                                  DDDDDDDD                 DDDDDDDD                       TTTTTTTTT               |')
+print('| EEEEEEEEE                                  DDDDDDDD               DDDDDDDD                         TTTTTTTTT               |')
+print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDD             DDDDDDDD                           TTTTTTTTT               |')
+print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDDDDDDDDDDDDDDDDDDDDD                             TTTTTTTTT               |')
+print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDDDDDDDDDDDDDDDDDDD                               TTTTTTTTT               |')
+print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE         DDDDDDDDDDDDDDDDDDDDDD                                 TTTTTTTTT               |')
+print('+——————————————————————————————————————————————————————————————+')
 print(f'Encrypt & Decrypt Tool    v{VERSION}')
 
 
+
 ##################################################################################################################################
+
 
 
 import os
 import colorama
 from Cryptodome.Cipher import DES
 from Cryptodome.Cipher import DES3
+from Cryptodome.Cipher import Salsa20
 
 
 def print_mode(l, da=None):
@@ -76,6 +81,7 @@ loop = True
 
 
 def info():
+    print('\n')
     print('Python 3.9.12')
     print('Author: 和泉かやと')
     print('Date: 2023/01/02')
@@ -87,12 +93,12 @@ def info():
 def get_payload(iv: bool):
     if iv:
         path = input('file path?:')
-        key = input('key?:')
-        iv = input('iv/nonce?:')
+        key = input('key?:').encode()
+        iv = input('iv/nonce?:').encode()
         return [path, key, iv]
     else:
         path = input('file path?:')
-        key = input('key?:')
+        key = input('key?:').encode()
         return [path, key]
 
 
@@ -104,59 +110,74 @@ def check_path(path: str):
 
 
 def check_des_key(key: bytes):
-    if len(key.encode()) != DES.key_size:
+    if len(key) != DES.key_size:
         print(f'{colorama.Fore.RED}Incorrect DES key length ({len(key)} bytes)')
         print(f'Should be {DES.key_size} bytes', colorama.Fore.RESET)
         return False
     return True
 
 def check_3des_key(key: bytes):
-    if len(key.encode()) not in  DES3.key_size:
+    if len(key) not in  DES3.key_size:
         print(f'{colorama.Fore.RED}Incorrect DES key length ({len(key)} bytes)')
         print(f'Should be {DES3.key_size[0]} or {DES3.key_size[1]} bytes{colorama.Fore.RESET}')
         return False
     return True
 
 
-def check_payload_cbc_cfb_ofb(para, d3):
-    a = check_path(para[0])
+def check_payload_cbc_cfb_ofb(payload, d3):
+    a = check_path(payload[0])
     if d3 == 'd':
-        b = check_des_key(para[1])
+        b = check_des_key(payload[1])
     elif d3 == 'ddd':
-        b = check_3des_key(para[1])
+        b = check_3des_key(payload[1])
     c = True
-    if len(para[2]) != 8:
-        print(f'{colorama.Fore.RED}Incorrect DES iv length ({len(para[2])} bytes)')
+    if len(payload[2]) != 8:
+        print(f'{colorama.Fore.RED}Incorrect DES iv length ({len(payload[2])} bytes)')
         print('Should be 8 bytes', colorama.Fore.RESET)
         c = False
     if a and b and c:
         global loop
         loop = False
 
-def check_payload_ctr(para, d3):
-    a = check_path(para[0])
+def check_payload_ctr(payload, d3):
+    a = check_path(payload[0])
     if d3 == 'd':
-        b = check_des_key(para[1])
+        b = check_des_key(payload[1])
     elif d3 == 'ddd':
-        b = check_3des_key(para[1])
+        b = check_3des_key(payload[1])
     c = True
-    if len(para[2]) >= 8:
-        print(f'{colorama.Fore.RED}Incorrect DES iv length ({len(para[2])} bytes)')
+    if len(payload[2]) >= 8:
+        print(f'{colorama.Fore.RED}Incorrect DES iv length ({len(payload[2])} bytes)')
         print('Should be smaller 8 bytes', colorama.Fore.RESET)
         c = False
     if a and b and c:
         global loop
         loop = False
 
-def check_payload_eax_ecb(para, d3):
-    a = check_path(para[0])
+def check_payload_eax_ecb(payload, d3):
+    a = check_path(payload[0])
     if d3 == 'd':
-        b = check_des_key(para[1])
+        b = check_des_key(payload[1])
     elif d3 == 'ddd':
-        b = check_3des_key(para[1])
+        b = check_3des_key(payload[1])
     if a and b:
         global loop
         loop = False
+
+def check_payload_salsa20(payload):
+    a = check_path(payload[0])
+    b = len(payload[1]) in Salsa20.key_size
+    c = len(payload[2]) == 8
+    if a and b and c:
+        global loop
+        loop = False
+    else:
+        if not b:
+            print(f'{colorama.Fore.RED}Incorrect Salsa20 key length ({len(payload[1])} bytes)')
+            print(f'Should be {Salsa20.key_size[0]} or {Salsa20.key_size[1]} bytes{colorama.Fore.RESET}')
+        if not c:
+            print(f'{colorama.Fore.RED}Incorrect Salsa20 iv length ({len(payload[2])} bytes)')
+            print('Should be 8 bytes', colorama.Fore.RESET)    
 
 
 from Cryptodome.Util.Padding import pad, unpad
@@ -189,25 +210,31 @@ def decrypt(cipher: bytes, enc: list, padding=None) -> bytes:
 
     return plain
 
-def rw(payload: list, enc: list, padding=None, de=None):
-    with open(payload[0], 'rb') as file:
+def rw(path: str, enc: list, padding=None, de=None):
+    with open(path, 'rb') as file:
         if de == 'enc':
             result = encrypt(file.read(), enc, padding=padding)
-            payload[0] += '.enc'
+            path += '.enc'
         elif de == 'dec':
             result = decrypt(file.read(), enc, padding=padding)
-            if payload[0][-4:] == '.enc':
-                payload[0] = payload[0][:-3]
+            if path[-4:] == '.enc':
+                path = path[:-3]
 
-    with open(payload[0], 'wb') as file:
+    with open(path, 'wb') as file:
         file.write(result)
 
-    print('Done!')
+    global loop
+    loop = True
+    print('\n', colorama.Fore.GREEN, 'Done!', colorama.Fore.RESET)
 
 
 
-while True:
-    try:
+##################################################################################################################################
+
+
+
+try:
+    while True:
         print_mode('l1')
         mode = input('?:')
 
@@ -225,7 +252,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'd')
-                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode())], padding=DES.block_size, de='enc')
+                    rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_CBC, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_CBC, iv=payload[2])], padding=DES.block_size, de='enc')
 
 
                 elif mode == '2':
@@ -234,7 +261,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'd')
-                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode())], de='enc')
+                    rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_CFB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_CFB, iv=payload[2])], de='enc')
 
                 elif mode == '3':
                     mode = '0'
@@ -242,7 +269,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_ctr(payload, 'd')
-                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode())], de='enc')
+                    rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_CTR, nonce=payload[2]), DES.new(key=payload[1], mode=DES.MODE_CTR, nonce=payload[2])], de='enc')
 
                 elif mode == '4':
                     mode = '0'
@@ -250,7 +277,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_eax_ecb(payload, 'd')
-                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode())], de='enc')
+                    rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_EAX, nonce=payload[2]), DES.new(key=payload[1], mode=DES.MODE_EAX, nonce=payload[2])], de='enc')
 
 
                 elif mode == '5':
@@ -259,7 +286,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=False)
                         check_payload_eax_ecb(payload, 'd')
-                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_ECB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_ECB)], padding=DES.block_size, de='enc')
+                    rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_ECB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_ECB)], padding=DES.block_size, de='enc')
 
 
                 elif mode == '6':
@@ -268,7 +295,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'd')
-                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode())], de='enc')
+                    rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_OFB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_OFB, iv=payload[2])], de='enc')
 
 
                 elif mode == '9':
@@ -284,7 +311,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'ddd')
-                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_CBC, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_CBC, iv=payload[2].encode())], padding=DES3.block_size, de='enc')
+                    rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_CBC, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_CBC, iv=payload[2])], padding=DES3.block_size, de='enc')
 
 
                 elif mode == '2':
@@ -293,7 +320,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'ddd')
-                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_CFB, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_CFB, iv=payload[2].encode())], de='enc')
+                    rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_CFB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_CFB, iv=payload[2])], de='enc')
 
                 elif mode == '3':
                     mode = '0'
@@ -301,7 +328,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_ctr(payload, 'ddd')
-                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_CTR, nonce=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_CTR, nonce=payload[2].encode())], de='enc')
+                    rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_CTR, nonce=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_CTR, nonce=payload[2])], de='enc')
 
                 elif mode == '4':
                     mode = '0'
@@ -309,7 +336,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_eax_ecb(payload, 'ddd')
-                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_EAX, nonce=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_EAX, nonce=payload[2].encode())], de='enc')
+                    rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_EAX, nonce=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_EAX, nonce=payload[2])], de='enc')
 
 
                 elif mode == '5':
@@ -318,7 +345,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=False)
                         check_payload_eax_ecb(payload, 'ddd')
-                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_ECB, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_ECB)], padding=DES3.block_size, de='enc')
+                    rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_ECB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_ECB)], padding=DES3.block_size, de='enc')
 
 
                 elif mode == '6':
@@ -327,7 +354,15 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'ddd')
-                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_OFB, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_OFB, iv=payload[2].encode())], de='enc')
+                    rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_OFB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_OFB, iv=payload[2])], de='enc')
+
+            elif mode == '5':
+                mode = '0'
+                # salsa20
+                while loop:
+                    payload = get_payload(iv=True)
+                    check_payload_salsa20(payload)
+                rw(payload[0], [Salsa20.new(key=payload[1], nonce=payload[2]), Salsa20.new(key=payload[1], nonce=payload[2])], de='enc')
 
 
         elif mode == '2':
@@ -344,7 +379,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'd')
-                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode())], padding=DES.block_size, de='dec')
+                    rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_CBC, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_CBC, iv=payload[2])], padding=DES.block_size, de='dec')
                 
                 if mode == '2':
                     mode = '0'
@@ -352,7 +387,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'd')
-                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode())], de='dec')
+                    rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_CFB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_CFB, iv=payload[2])], de='dec')
 
 
                 elif mode == '3':
@@ -361,7 +396,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_ctr(payload, 'd')
-                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode())], de='dec')
+                    rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_CTR, nonce=payload[2]), DES.new(key=payload[1], mode=DES.MODE_CTR, nonce=payload[2])], de='dec')
 
                 elif mode == '4':
                     mode = '0'
@@ -369,7 +404,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_eax_ecb(payload, 'd')
-                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode())], de='dec')
+                    rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_EAX, nonce=payload[2]), DES.new(key=payload[1], mode=DES.MODE_EAX, nonce=payload[2])], de='dec')
 
                 elif mode == '5':
                     mode = '0'
@@ -377,7 +412,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=False)
                         check_payload_eax_ecb(payload, 'd')
-                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_ECB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_ECB)], padding=DES.block_size, de='dec')
+                    rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_ECB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_ECB)], padding=DES.block_size, de='dec')
 
 
                 elif mode == '6':
@@ -386,7 +421,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'd')
-                    rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode())], de='dec')
+                    rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_OFB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_OFB, iv=payload[2])], de='dec')
 
 
             elif mode == '2':
@@ -399,7 +434,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'ddd')
-                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_CBC, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_CBC, iv=payload[2].encode())], padding=DES3.block_size, de='dec')
+                    rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_CBC, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_CBC, iv=payload[2])], padding=DES3.block_size, de='dec')
                 
                 if mode == '2':
                     mode = '0'
@@ -407,7 +442,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'ddd')
-                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_CFB, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_CFB, iv=payload[2].encode())], de='dec')
+                    rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_CFB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_CFB, iv=payload[2])], de='dec')
 
 
                 elif mode == '3':
@@ -416,7 +451,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_ctr(payload, 'ddd')
-                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_CTR, nonce=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_CTR, nonce=payload[2].encode())], de='dec')
+                    rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_CTR, nonce=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_CTR, nonce=payload[2])], de='dec')
 
                 elif mode == '4':
                     mode = '0'
@@ -424,7 +459,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_eax_ecb(payload, 'ddd')
-                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_EAX, nonce=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_EAX, nonce=payload[2].encode())], de='dec')
+                    rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_EAX, nonce=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_EAX, nonce=payload[2])], de='dec')
 
                 elif mode == '5':
                     mode = '0'
@@ -432,7 +467,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=False)
                         check_payload_eax_ecb(payload, 'ddd')
-                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_ECB, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_ECB)], padding=DES3.block_size, de='dec')
+                    rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_ECB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_ECB)], padding=DES3.block_size, de='dec')
 
 
                 elif mode == '6':
@@ -441,7 +476,7 @@ while True:
                     while loop:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'ddd')
-                    rw(payload, [DES3.new(key=payload[1].encode(), mode=DES3.MODE_OFB, iv=payload[2].encode()), DES3.new(key=payload[1].encode(), mode=DES3.MODE_OFB, iv=payload[2].encode())], de='dec')
+                    rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_OFB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_OFB, iv=payload[2])], de='dec')
 
 
 
@@ -449,15 +484,25 @@ while True:
                 elif mode == '9':
                     break
 
-        elif mode == '4' or 'info' or 'version':
+
+            elif mode == '5':
+                mode = '0'
+                # salsa20
+                while loop:
+                    payload = get_payload(iv=True)
+                    check_payload_salsa20(payload)
+                rw(payload[0], [Salsa20.new(key=payload[1], nonce=payload[2]), Salsa20.new(key=payload[1], nonce=payload[2])], de='dec')
+
+
+        elif mode == '4' or mode == 'info' or mode == 'version':
+            print(mode)
             info()
 
-        elif mode == '5' or 'exit' or 'leave':
-            os._exit(0)
+        elif mode == '5' or mode == 'exit' or mode == 'leave':
+            os._exit(0) 
 
+        
     
-    except Exception as e:
-        print(colorama.Fore.RED, e, colorama.Fore.RESET)
 
-
-    loop = True
+except Exception as e:
+    print(colorama.Fore.RED, e, colorama.Fore.RESET)

@@ -1,4 +1,4 @@
-VERSION = '1.2.0'
+VERSION = '1.2.1'
 
 
 print('+——————————————————————————————————————————————————————————————+')
@@ -22,6 +22,8 @@ print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE        DDDDDDDDDDDDDDDDDDDDDDDDD   
 print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE         DDDDDDDDDDDDDDDDDDDDDD                                 TTTTTTTTT               |')
 print('+——————————————————————————————————————————————————————————————+')
 print(f'Encrypt & Decrypt Tool    v{VERSION}')
+import time
+time.sleep(1.7)
 
 
 

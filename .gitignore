@@ -1,7 +1,13 @@
-國立臺灣師範大學附屬高級中學資訊安全課程傳統加密法報告.docx
-國立臺灣師範大學附屬高級中學資訊安全課程傳統加密法報告.docx.enc
+dist
+build
+
+*.docx
+*.enc
 test.py
 test2.py
 tmp.txt
 DES_CBC_Encryption.py
 *__pycache__
+*.clip
+*.png
+*.spec

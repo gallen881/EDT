@@ -1,4 +1,4 @@
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 
 
 print(' EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE          DDDDDDDDDDDDDDDDDDDDDD                    TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT')
@@ -34,6 +34,7 @@ def print_mode(l, da=None):
         print('(4): Info')
         print('(5): Exit')
     elif l == 'l2':
+        print('\n')
         print('(1): DES')
         print('(2): 3DES')
         print('(3): AES')
@@ -44,6 +45,7 @@ def print_mode(l, da=None):
         print('(8): Info')
         print('(9): Exit')
     elif l == 'l3':
+        print('\n')
         print('(1): CBC')
         print('(2): CFB')
         print('(3): CTR')
@@ -67,7 +69,16 @@ def print_mode(l, da=None):
 loop = True
 
 
-def get_parameter(iv: bool):
+def info():
+    print('Python 3.9.12')
+    print('Author: 和泉かやと')
+    print('Date: 2023/01/02')
+    print(f'Version: {VERSION}')
+    print('https://github.com/GallenWang/EDT')
+    print('Thanks for using this tool. If it is helpful to you, please give me the star!')
+
+
+def get_payload(iv: bool):
     if iv:
         path = input('file path?:')
         key = input('key?:')
@@ -95,7 +106,7 @@ def check_des_key(key):
     return True
 
 
-def check_parameter_cbc_cfb_ofb(para):
+def check_payload_cbc_cfb_ofb(para):
     a = check_path(para[0])
     b = check_des_key(para[1])
     c = True
@@ -107,7 +118,7 @@ def check_parameter_cbc_cfb_ofb(para):
         global loop
         loop = False
 
-def check_parameter_ctr(para):
+def check_payload_ctr(para):
     a = check_path(para[0])
     b = check_des_key(para[1])
     c = True
@@ -119,13 +130,59 @@ def check_parameter_ctr(para):
         global loop
         loop = False
 
-def check_parameter_eax_ecb(para):
+def check_payload_eax_ecb(para):
     if check_path(para[0]) and check_des_key(para[1]):
         global loop
         loop = False
 
 
-import EDF
+from Cryptodome.Util.Padding import pad, unpad
+
+def encrypt(plain: bytes, enc: list, padding=None) -> bytes:
+    '''
+    `enc`: [enc, enc]
+    `padding`: [bool, block_size]
+    '''
+    if padding == None:
+        cipher = enc[0].encrypt(plain)
+        assert plain == enc[1].decrypt(cipher)
+    else:
+        cipher = enc[0].encrypt(pad(plain, padding))
+        assert plain == unpad(enc[1].decrypt(cipher), padding)
+
+    return cipher
+
+def decrypt(cipher: bytes, enc: list, padding=None) -> bytes:
+    '''
+    `enc`: [enc, enc]
+    `padding`: [bool, block_size]
+    '''
+    if padding == None:
+        plain = enc[0].decrypt(cipher)
+        assert cipher == enc[1].encrypt(plain)
+    else:
+        plain = unpad(enc[0].decrypt(cipher), padding)
+        assert cipher == enc[1].encrypt(pad(plain, padding))
+
+    return plain
+
+def rw(payload: list, enc: list, padding=None, de=None):
+    with open(payload[0], 'rb') as file:
+        if de == 'enc':
+            result = encrypt(file.read(), enc, padding=padding)
+            payload[0] += '.enc'
+        elif de == 'dec':
+            result = decrypt(file.read(), enc, padding=padding)
+            if payload[0][-4:] == '.enc':
+                payload[0] = payload[0][:-3]
+
+    with open(payload[0], 'wb') as file:
+        file.write(result)
+
+    print('Done!')
+
+from Cryptodome.Cipher import DES
+from Cryptodome.Cipher import DES3
 
 
 while True:
@@ -145,76 +202,52 @@ while True:
                 mode = '0'
                 # enc des cbc
                 while loop:
-                    data = get_parameter(iv=True)
-                    check_parameter_cbc_cfb_ofb(data)
-                with open(data[0], 'rb') as file:
-                    file = file.read()
-                cipher = EDF.Encrypt.des_cbc(file, data[1].encode(), data[2].encode())
-                with open(f'{data[0]}.enc', 'wb') as file:
-                    file.write(cipher)
+                    payload = get_payload(iv=True)
+                    check_payload_cbc_cfb_ofb(payload)
+                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode())], padding=DES.block_size, de='enc')
+
 
             elif mode == '2':
                 mode = '0'
                 # enc des cfb
                 while loop:
-                    data = get_parameter(iv=True)
-                    check_parameter_cbc_cfb_ofb(data)
-                with open(data[0], 'rb') as file:
-                    file = file.read()
-                cipher = EDF.Encrypt.des_cfb(file, data[1].encode(), data[2].encode())
-                with open(f'{data[0]}.enc', 'wb') as file:
-                    file.write(cipher)
+                    payload = get_payload(iv=True)
+                    check_payload_cbc_cfb_ofb(payload)
+                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode())], de='enc')
 
             elif mode == '3':
                 mode = '0'
                 # enc des ctr
                 while loop:
-                    data = get_parameter(iv=True)
-                    check_parameter_ctr(data)
-                with open(data[0], 'rb') as file:
-                    file = file.read()
-                cipher = EDF.Encrypt.des_ctr(file, data[1].encode(), data[2].encode())
-                with open(f'{data[0]}.enc', 'wb') as file:
-                    file.write(cipher)
-
+                    payload = get_payload(iv=True)
+                    check_payload_ctr(payload)
+                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode())], de='enc')
 
             elif mode == '4':
                 mode = '0'
                 # enc des eax
                 while loop:
-                    data = get_parameter(iv=True)
-                    check_parameter_eax_ecb(data)
-                with open(data[0], 'rb') as file:
-                    file = file.read()
-                cipher = EDF.Encrypt.des_eax(file, data[1].encode(), data[2].encode())
-                with open(f'{data[0]}.enc', 'wb') as file:
-                    file.write(cipher)
+                    payload = get_payload(iv=True)
+                    check_payload_eax_ecb(payload)
+                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode())], de='enc')
 
 
             elif mode == '5':
                 mode = '0'
                 # enc des ecb
                 while loop:
-                    data = get_parameter(iv=False)
-                    check_parameter_eax_ecb(data)
-                with open(data[0], 'rb') as file:
-                    file = file.read()
-                cipher = EDF.Encrypt.des_ecb(file, data[1].encode())
-                with open(f'{data[0]}.enc', 'wb') as file:
-                    file.write(cipher)
+                    payload = get_payload(iv=False)
+                    check_payload_eax_ecb(payload)
+                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_ECB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_ECB)], padding=DES.block_size, de='enc')
 
 
             elif mode == '6':
                 mode = '0'
                 # enc des ofb
                 while loop:
-                    data = get_parameter(iv=True)
-                    check_parameter_cbc_cfb_ofb(data)
-                with open(data[0], 'rb') as file:
-                    file = file.read()
-                cipher = EDF.Encrypt.des_ofb(file, data[1].encode(), data[2].encode())
-                with open(f'{data[0]}.enc', 'wb') as file:
-                    file.write(cipher)
+                    payload = get_payload(iv=True)
+                    check_payload_cbc_cfb_ofb(payload)
+                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode())], de='enc')
 
 
             elif mode == '9':
@@ -236,89 +269,51 @@ while True:
                 mode = '0'
                 # dec des cbc
                 while loop:
-                    data = get_parameter(iv=True)
-                    check_parameter_cbc_cfb_ofb(data)
-                with open(data[0], 'rb') as file:
-                    file = file.read()
-                plain = EDF.Decrypt.des_cbc(file, data[1].encode(), data[2].encode())
-                if data[0][-4:] == '.enc':
-                    data[0] = data[0][:-3]
-                with open(f'{data[0]}', 'wb') as file:
-                    file.write(plain)
+                    payload = get_payload(iv=True)
+                    check_payload_cbc_cfb_ofb(payload)
+                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CBC, iv=payload[2].encode())], padding=DES.block_size, de='dec')
             
             if mode == '2':
                 mode = '0'
                 # dec des cfb
                 while loop:
-                    data = get_parameter(iv=True)
-                    check_parameter_cbc_cfb_ofb(data)
-                with open(data[0], 'rb') as file:
-                    file = file.read()
-                plain = EDF.Decrypt.des_cfb(file, data[1].encode(), data[2].encode())
-                if data[0][-4:] == '.enc':
-                    data[0] = data[0][:-3]
-                with open(f'{data[0]}', 'wb') as file:
-                    file.write(plain)
+                    payload = get_payload(iv=True)
+                    check_payload_cbc_cfb_ofb(payload)
+                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CFB, iv=payload[2].encode())], de='dec')
 
 
             elif mode == '3':
                 mode = '0'
                 # enc des ctr
                 while loop:
-                    data = get_parameter(iv=True)
-                    check_parameter_ctr(data)
-                with open(data[0], 'rb') as file:
-                    file = file.read()
-                plain = EDF.Decrypt.des_ctr(file, data[1].encode(), data[2].encode())
-                if data[0][-4:] == '.enc':
-                    data[0] = data[0][:-3]
-                with open(f'{data[0]}', 'wb') as file:
-                    file.write(plain)
-
+                    payload = get_payload(iv=True)
+                    check_payload_ctr(payload)
+                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_CTR, nonce=payload[2].encode())], de='dec')
 
             elif mode == '4':
                 mode = '0'
                 # enc des eax
                 while loop:
-                    data = get_parameter(iv=True)
-                    check_parameter_eax_ecb(data)
-                with open(data[0], 'rb') as file:
-                    file = file.read()
-                plain = EDF.Decrypt.des_eax(file, data[1].encode(), data[2].encode())
-                if data[0][-4:] == '.enc':
-                    data[0] = data[0][:-3]
-                with open(f'{data[0]}', 'wb') as file:
-                    file.write(plain)
-
+                    payload = get_payload(iv=True)
+                    check_payload_eax_ecb(payload)
+                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_EAX, nonce=payload[2].encode())], de='dec')
 
             elif mode == '5':
                 mode = '0'
                 # enc des ecb
                 while loop:
-                    data = get_parameter(iv=False)
-                    check_parameter_eax_ecb(data)
-                with open(data[0], 'rb') as file:
-                    file = file.read()
-                plain = EDF.Decrypt.des_ecb(file, data[1].encode())
-                if data[0][-4:] == '.enc':
-                    data[0] = data[0][:-3]
-                with open(f'{data[0]}', 'wb') as file:
-                    file.write(plain)
+                    payload = get_payload(iv=False)
+                    check_payload_eax_ecb(payload)
+                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_ECB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_ECB)], padding=DES.block_size, de='dec')
 
 
             elif mode == '6':
                 mode = '0'
                 # enc des ofb
                 while loop:
-                    data = get_parameter(iv=True)
-                    check_parameter_cbc_cfb_ofb(data)
-                with open(data[0], 'rb') as file:
-                    file = file.read()
-                plain = EDF.Decrypt.des_ofb(file, data[1].encode(), data[2].encode())
-                if data[0][-4:] == '.enc':
-                    data[0] = data[0][:-3]
-                with open(f'{data[0]}', 'wb') as file:
-                    file.write(plain)
+                    payload = get_payload(iv=True)
+                    check_payload_cbc_cfb_ofb(payload)
+                rw(payload, [DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode()), DES.new(key=payload[1].encode(), mode=DES.MODE_OFB, iv=payload[2].encode())], de='dec')
 
 
 
@@ -326,5 +321,10 @@ while True:
             elif mode == '9':
                 break
 
-    print('Done!')
+    elif mode == '4' or 'info' or 'version':
+        info()
+
+    elif mode == '5' or 'exit' or 'leave':
+        os._exit(0)
+
     loop = True

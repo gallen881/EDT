@@ -1,4 +1,4 @@
-VERSION = '1.2.1'
+VERSION = '1.3.0'
 
 
 print('+——————————————————————————————————————————————————————————————+')
@@ -35,6 +35,7 @@ import os
 import colorama
 from Cryptodome.Cipher import DES
 from Cryptodome.Cipher import DES3
+from Cryptodome.Cipher import ChaCha20
 from Cryptodome.Cipher import Salsa20
 
 
@@ -179,7 +180,22 @@ def check_payload_salsa20(payload):
             print(f'Should be {Salsa20.key_size[0]} or {Salsa20.key_size[1]} bytes{colorama.Fore.RESET}')
         if not c:
             print(f'{colorama.Fore.RED}Incorrect Salsa20 iv length ({len(payload[2])} bytes)')
-            print('Should be 8 bytes', colorama.Fore.RESET)    
+            print('Should be 8 bytes', colorama.Fore.RESET)
+
+def check_payload_chacha20(payload):
+    a = check_path(payload[0])
+    b = len(payload[1]) == ChaCha20.key_size
+    c = len(payload[2]) in [8, 12, 24]
+    if a and b and c:
+        global loop
+        loop = False
+    else:
+        if not b:
+            print(f'{colorama.Fore.RED}Incorrect Salsa20 key length ({len(payload[1])} bytes)')
+            print(f'Should be {ChaCha20.key_size} bytes{colorama.Fore.RESET}')
+        if not c:
+            print(f'{colorama.Fore.RED}Incorrect Salsa20 iv length ({len(payload[2])} bytes)')
+            print('Should be 8, 12 or 24 bytes', colorama.Fore.RESET)    
 
 
 from Cryptodome.Util.Padding import pad, unpad
@@ -358,6 +374,14 @@ try:
                         check_payload_cbc_cfb_ofb(payload, 'ddd')
                     rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_OFB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_OFB, iv=payload[2])], de='enc')
 
+            elif mode == '4':
+                mode = '0'
+                # chacha20
+                while loop:
+                    payload = get_payload(iv=True)
+                    check_payload_chacha20(payload)
+                rw(payload[0], [ChaCha20.new(key=payload[1], nonce=payload[2]), ChaCha20.new(key=payload[1], nonce=payload[2])], de='enc')
+
             elif mode == '5':
                 mode = '0'
                 # salsa20
@@ -486,6 +510,14 @@ try:
                 elif mode == '9':
                     break
 
+
+            elif mode == '4':
+                mode = '0'
+                # chacha20
+                while loop:
+                    payload = get_payload(iv=True)
+                    check_payload_chacha20(payload)
+                rw(payload[0], [ChaCha20.new(key=payload[1], nonce=payload[2]), ChaCha20.new(key=payload[1], nonce=payload[2])], de='dec')
 
             elif mode == '5':
                 mode = '0'

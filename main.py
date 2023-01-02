@@ -1,7 +1,7 @@
-VERSION = '1.4.2'
+VERSION = '1.4.3'
 
 
-print('+——————————————————————————————————————————————————————————————————————————————————————————————————————————————+')
+print('+--------------------------------------------------------------------------------------------------------------+')
 print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE      DDDDDDDDDDDDDDDDDDDDDD            TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT |')
 print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE     DDDDDDDDDDDDDDDDDDDDDDDDD          TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT |')
 print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE     DDDDDDDDDDDDDDDDDDDDDDDDDDD        TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT |')
@@ -20,7 +20,7 @@ print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE     DDDDDDDD             DDDDDDDD  
 print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE     DDDDDDDDDDDDDDDDDDDDDDDDDDD                   TTTTTTTTT              |')
 print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE     DDDDDDDDDDDDDDDDDDDDDDDDD                     TTTTTTTTT              |')
 print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE      DDDDDDDDDDDDDDDDDDDDDD                       TTTTTTTTT              |')
-print('+——————————————————————————————————————————————————————————————————————————————————————————————————————————————+')
+print('+--------------------------------------------------------------------------------------------------------------+')
 print(f'Encrypt & Decrypt Tool    v{VERSION}')
 import time
 time.sleep(1.7)
@@ -93,9 +93,29 @@ def info():
     print('Thanks for using this tool. If it is helpful to you, please give me the star!')
 
 def help():
-    print('\n')
-    with open('help.txt', 'r') as file:
-        print(file.read())
+    print('''
+1. Select mode
+    e.g. [1]: Encrypt
+         [2]: Decrypt
+         [3]: Help
+         [4]: Info
+         [5]: Exit
+
+         For showing this message, you should type "3".
+
+2. Enter path
+    If the file not found, return "Wrong path".
+
+3. Enter key
+    If the key is illegal, raise error.
+
+4. Enter iv/nonce
+    Some mode does not require iv/nonce.
+    If the iv/nonce is illegal, raise error.
+
+5. This tools is not a malware, if your antivirus blocks this tool, you should stop your antivirus.
+
+6. Go to https://github.com/GallenWang/EDT for update and more informations.''')
 
 
 def get_payload(iv: bool):

@@ -1,4 +1,4 @@
-VERSION = '1.3.0'
+VERSION = '1.4.1'
 
 
 print('+——————————————————————————————————————————————————————————————+')
@@ -42,42 +42,42 @@ from Cryptodome.Cipher import Salsa20
 def print_mode(l, da=None):
     if l == 'l1':
         print('\n\n')
-        print('(1): Encrypt')
-        print('(2): Decrypt')
-        print('(3): Help')
-        print('(4): Info')
-        print('(5): Exit')
+        print('[1]: Encrypt')
+        print('[2]: Decrypt')
+        print('[3]: Help')
+        print('[4]: Info')
+        print('[5]: Exit')
     elif l == 'l2':
         print('\n')
-        print('(1): DES')
-        print('(2): 3DES')
-        print('(3): AES')
-        print('(4): ChaCha20')
-        print('(5): Salsa20')
-        print('(6): Blowfish')
-        print('(7): Help')
-        print('(8): Info')
-        print('(9): Exit')
+        print('[1]: DES')
+        print('[2]: 3DES')
+        print('[3]: AES (not working)')
+        print('[4]: ChaCha20')
+        print('[5]: Salsa20')
+        print('[6]: Blowfish (not working)')
+        print('[7]: Help')
+        print('[8]: Info')
+        print('[9]: Exit')
     elif l == 'l3':
         print('\n')
-        print('(1): CBC')
-        print('(2): CFB')
-        print('(3): CTR')
-        print('(4): EAX')
-        print('(5): ECB')
-        print('(6): OFB')
+        print('[1]: CBC')
+        print('[2]: CFB')
+        print('[3]: CTR')
+        print('[4]: EAX')
+        print('[5]: ECB')
+        print('[6]: OFB')
         if da == 'd':
-            print('(7): Help')
-            print('(8): Info')
-            print('(9): Exit')
+            print('[7]: Help')
+            print('[8]: Info')
+            print('[9]: Exit')
         elif da == 'a':
-            print('(7): CCM')
-            print('(8): GCM')
-            print('(9): OCB')
-            print('(10): SIV')
-            print('(11): Help')
-            print('(12): Info')
-            print('(13): Exit')
+            print('[7]: CCM')
+            print('[8]: GCM')
+            print('[9]: OCB')
+            print('[10]: SIV')
+            print('[11]: Help')
+            print('[12]: Info')
+            print('[13]: Exit')
 
 
 loop = True
@@ -91,6 +91,11 @@ def info():
     print(f'Version: {VERSION}')
     print('https://github.com/GallenWang/EDT')
     print('Thanks for using this tool. If it is helpful to you, please give me the star!')
+
+def help():
+    print('\n')
+    with open('help.txt', 'r') as file:
+        print(file.read())
 
 
 def get_payload(iv: bool):
@@ -272,7 +277,6 @@ try:
                         check_payload_cbc_cfb_ofb(payload, 'd')
                     rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_CBC, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_CBC, iv=payload[2])], padding=DES.block_size, de='enc')
 
-
                 elif mode == '2':
                     mode = '0'
                     # enc des cfb
@@ -297,7 +301,6 @@ try:
                         check_payload_eax_ecb(payload, 'd')
                     rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_EAX, nonce=payload[2]), DES.new(key=payload[1], mode=DES.MODE_EAX, nonce=payload[2])], de='enc')
 
-
                 elif mode == '5':
                     mode = '0'
                     # enc des ecb
@@ -305,7 +308,6 @@ try:
                         payload = get_payload(iv=False)
                         check_payload_eax_ecb(payload, 'd')
                     rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_ECB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_ECB)], padding=DES.block_size, de='enc')
-
 
                 elif mode == '6':
                     mode = '0'
@@ -315,8 +317,13 @@ try:
                         check_payload_cbc_cfb_ofb(payload, 'd')
                     rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_OFB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_OFB, iv=payload[2])], de='enc')
 
+                elif mode in ['7', 'help']:
+                    help()
 
-                elif mode == '9':
+                elif mode in ['8', 'info', 'version']:
+                    info()
+
+                elif mode in ['9', 'exit', 'leave']:
                     break
 
             elif mode == '2':
@@ -330,7 +337,6 @@ try:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'ddd')
                     rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_CBC, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_CBC, iv=payload[2])], padding=DES3.block_size, de='enc')
-
 
                 elif mode == '2':
                     mode = '0'
@@ -356,7 +362,6 @@ try:
                         check_payload_eax_ecb(payload, 'ddd')
                     rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_EAX, nonce=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_EAX, nonce=payload[2])], de='enc')
 
-
                 elif mode == '5':
                     mode = '0'
                     # enc 3des ecb
@@ -365,7 +370,6 @@ try:
                         check_payload_eax_ecb(payload, 'ddd')
                     rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_ECB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_ECB)], padding=DES3.block_size, de='enc')
 
-
                 elif mode == '6':
                     mode = '0'
                     # enc 3des ofb
@@ -373,6 +377,15 @@ try:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'ddd')
                     rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_OFB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_OFB, iv=payload[2])], de='enc')
+
+                elif mode in ['7', 'help']:
+                    help()
+
+                elif mode in ['8', 'info', 'version']:
+                    info()
+
+                elif mode in ['9', 'exit', 'leave']:
+                    break
 
             elif mode == '4':
                 mode = '0'
@@ -389,6 +402,15 @@ try:
                     payload = get_payload(iv=True)
                     check_payload_salsa20(payload)
                 rw(payload[0], [Salsa20.new(key=payload[1], nonce=payload[2]), Salsa20.new(key=payload[1], nonce=payload[2])], de='enc')
+
+            elif mode in ['7', 'help']:
+                help()
+
+            elif mode in ['8', 'info', 'version']:
+                info()
+
+            elif mode in ['9', 'exit', 'leave']:
+                break
 
 
         elif mode == '2':
@@ -415,7 +437,6 @@ try:
                         check_payload_cbc_cfb_ofb(payload, 'd')
                     rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_CFB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_CFB, iv=payload[2])], de='dec')
 
-
                 elif mode == '3':
                     mode = '0'
                     # dec des ctr
@@ -440,7 +461,6 @@ try:
                         check_payload_eax_ecb(payload, 'd')
                     rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_ECB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_ECB)], padding=DES.block_size, de='dec')
 
-
                 elif mode == '6':
                     mode = '0'
                     # dec des ofb
@@ -449,6 +469,14 @@ try:
                         check_payload_cbc_cfb_ofb(payload, 'd')
                     rw(payload[0], [DES.new(key=payload[1], mode=DES.MODE_OFB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_OFB, iv=payload[2])], de='dec')
 
+                elif mode in ['7', 'help']:
+                    help()
+
+                elif mode in ['8', 'info', 'version']:
+                    info()
+
+                elif mode in ['9', 'exit', 'leave']:
+                    break
 
             elif mode == '2':
                 print_mode('l3')
@@ -469,7 +497,6 @@ try:
                         payload = get_payload(iv=True)
                         check_payload_cbc_cfb_ofb(payload, 'ddd')
                     rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_CFB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_CFB, iv=payload[2])], de='dec')
-
 
                 elif mode == '3':
                     mode = '0'
@@ -495,7 +522,6 @@ try:
                         check_payload_eax_ecb(payload, 'ddd')
                     rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_ECB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_ECB)], padding=DES3.block_size, de='dec')
 
-
                 elif mode == '6':
                     mode = '0'
                     # dec 3des ofb
@@ -504,12 +530,14 @@ try:
                         check_payload_cbc_cfb_ofb(payload, 'ddd')
                     rw(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_OFB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_OFB, iv=payload[2])], de='dec')
 
+                elif mode in ['7', 'help']:
+                    help()
 
+                elif mode in ['8', 'info', 'version']:
+                    info()
 
-
-                elif mode == '9':
+                elif mode in ['9', 'exit', 'leave']:
                     break
-
 
             elif mode == '4':
                 mode = '0'
@@ -527,16 +555,28 @@ try:
                     check_payload_salsa20(payload)
                 rw(payload[0], [Salsa20.new(key=payload[1], nonce=payload[2]), Salsa20.new(key=payload[1], nonce=payload[2])], de='dec')
 
+            elif mode in ['7', 'help']:
+                help()
+
+            elif mode in ['8', 'info', 'version']:
+                info()
+
+            elif mode in ['9', 'exit', 'leave']:
+                break
+
+
+        elif mode in ['3', 'help']:
+            help()
+
 
         elif mode == '4' or mode == 'info' or mode == 'version':
             print(mode)
             info()
 
+
         elif mode == '5' or mode == 'exit' or mode == 'leave':
             os._exit(0) 
 
-        
-    
 
 except Exception as e:
     print(colorama.Fore.RED, e, colorama.Fore.RESET)

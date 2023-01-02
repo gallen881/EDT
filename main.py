@@ -1,4 +1,4 @@
-VERSION = '1.4.3'
+VERSION = '1.4.4'
 
 
 print('+--------------------------------------------------------------------------------------------------------------+')
@@ -32,7 +32,6 @@ time.sleep(1.7)
 
 
 import os
-import colorama
 from Cryptodome.Cipher import DES
 from Cryptodome.Cipher import DES3
 from Cryptodome.Cipher import ChaCha20
@@ -132,22 +131,22 @@ def get_payload(iv: bool):
 
 def check_path(path: str):
     if not os.path.exists(path):
-        print(colorama.Fore.RED, 'Wrong path', colorama.Fore.RESET)
+        print('Wrong path')
         return False
     return True
 
 
 def check_des_key(key: bytes):
     if len(key) != DES.key_size:
-        print(f'{colorama.Fore.RED}Incorrect DES key length ({len(key)} bytes)')
-        print(f'Should be {DES.key_size} bytes', colorama.Fore.RESET)
+        print(f'Incorrect DES key length ({len(key)} bytes)')
+        print(f'Should be {DES.key_size} bytes')
         return False
     return True
 
 def check_3des_key(key: bytes):
     if len(key) not in  DES3.key_size:
-        print(f'{colorama.Fore.RED}Incorrect DES key length ({len(key)} bytes)')
-        print(f'Should be {DES3.key_size[0]} or {DES3.key_size[1]} bytes{colorama.Fore.RESET}')
+        print(f'Incorrect DES key length ({len(key)} bytes)')
+        print(f'Should be {DES3.key_size[0]} or {DES3.key_size[1]} bytes')
         return False
     return True
 
@@ -160,8 +159,8 @@ def check_payload_cbc_cfb_ofb(payload, d3):
         b = check_3des_key(payload[1])
     c = True
     if len(payload[2]) != 8:
-        print(f'{colorama.Fore.RED}Incorrect DES iv length ({len(payload[2])} bytes)')
-        print('Should be 8 bytes', colorama.Fore.RESET)
+        print(f'Incorrect DES iv length ({len(payload[2])} bytes)')
+        print('Should be 8 bytes')
         c = False
     if a and b and c:
         global loop
@@ -175,8 +174,8 @@ def check_payload_ctr(payload, d3):
         b = check_3des_key(payload[1])
     c = True
     if len(payload[2]) >= 8:
-        print(f'{colorama.Fore.RED}Incorrect DES iv length ({len(payload[2])} bytes)')
-        print('Should be smaller 8 bytes', colorama.Fore.RESET)
+        print(f'Incorrect DES iv length ({len(payload[2])} bytes)')
+        print('Should be smaller 8 bytes')
         c = False
     if a and b and c:
         global loop
@@ -201,11 +200,11 @@ def check_payload_salsa20(payload):
         loop = False
     else:
         if not b:
-            print(f'{colorama.Fore.RED}Incorrect Salsa20 key length ({len(payload[1])} bytes)')
-            print(f'Should be {Salsa20.key_size[0]} or {Salsa20.key_size[1]} bytes{colorama.Fore.RESET}')
+            print(f'Incorrect Salsa20 key length ({len(payload[1])} bytes)')
+            print(f'Should be {Salsa20.key_size[0]} or {Salsa20.key_size[1]} bytes')
         if not c:
-            print(f'{colorama.Fore.RED}Incorrect Salsa20 iv length ({len(payload[2])} bytes)')
-            print('Should be 8 bytes', colorama.Fore.RESET)
+            print(f'Incorrect Salsa20 iv length ({len(payload[2])} bytes)')
+            print('Should be 8 bytes')
 
 def check_payload_chacha20(payload):
     a = check_path(payload[0])
@@ -216,11 +215,11 @@ def check_payload_chacha20(payload):
         loop = False
     else:
         if not b:
-            print(f'{colorama.Fore.RED}Incorrect Salsa20 key length ({len(payload[1])} bytes)')
-            print(f'Should be {ChaCha20.key_size} bytes{colorama.Fore.RESET}')
+            print(f'Incorrect Salsa20 key length ({len(payload[1])} bytes)')
+            print(f'Should be {ChaCha20.key_size} bytes')
         if not c:
-            print(f'{colorama.Fore.RED}Incorrect Salsa20 iv length ({len(payload[2])} bytes)')
-            print('Should be 8, 12 or 24 bytes', colorama.Fore.RESET)    
+            print(f'Incorrect Salsa20 iv length ({len(payload[2])} bytes)')
+            print('Should be 8, 12 or 24 bytes')    
 
 
 from Cryptodome.Util.Padding import pad, unpad
@@ -268,7 +267,7 @@ def rw(path: str, enc: list, padding=None, de=None):
 
     global loop
     loop = True
-    print('\n', colorama.Fore.GREEN, 'Done!', colorama.Fore.RESET)
+    print('\nDone!')
 
 
 
@@ -599,4 +598,4 @@ try:
 
 
 except Exception as e:
-    print(colorama.Fore.RED, e, colorama.Fore.RESET)
+    print(e)

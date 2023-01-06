@@ -23,7 +23,7 @@ print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE      DDDDDDDDDDDDDDDDDDDDDD        
 print('+--------------------------------------------------------------------------------------------------------------+')
 print(f'Encrypt & Decrypt Tool    v{VERSION}')
 import time
-time.sleep(1.7)
+time.sleep(0.9)
 
 
 

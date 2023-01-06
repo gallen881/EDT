@@ -20,7 +20,7 @@ print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE     DDDDDDDD             DDDDDDDD  
 print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE     DDDDDDDDDDDDDDDDDDDDDDDDDDD                     TTTTTTTTT              |')
 print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE     DDDDDDDDDDDDDDDDDDDDDDDDD                       TTTTTTTTT              |')
 print('| EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE      DDDDDDDDDDDDDDDDDDDDDD                         TTTTTTTTT              |')
-print('+------------------------------------------------------------------------------------==--------------------------+')
+print('+----------------------------------------------------------------------------------------------------------------+')
 print(f'Encrypt & Decrypt Tool    v{VERSION}')
 import time
 time.sleep(0.9)
@@ -320,7 +320,7 @@ try:
 
             if mode == '1':
                 mode = '0'
-                # enc des cbc
+                # des cbc
                 while loop:
                     payload = get_payload(iv=True)
                     check_payload_cbc_cfb_ofb(payload, 'd')
@@ -333,7 +333,7 @@ try:
 
             elif mode == '2':
                 mode = '0'
-                # enc des cfb
+                # des cfb
                 while loop:
                     payload = get_payload(iv=True)
                     check_payload_cbc_cfb_ofb(payload, 'd')
@@ -345,7 +345,7 @@ try:
 
             elif mode == '3':
                 mode = '0'
-                # enc des ctr
+                # des ctr
                 while loop:
                     payload = get_payload(iv=True)
                     check_payload_ctr(payload, 'd')
@@ -357,7 +357,7 @@ try:
 
             elif mode == '4':
                 mode = '0'
-                # enc des eax
+                # des eax
                 while loop:
                     payload = get_payload(iv=True)
                     check_payload_eax_ecb(payload, 'd')
@@ -369,7 +369,7 @@ try:
 
             elif mode == '5':
                 mode = '0'
-                # enc des ecb
+                # des ecb
                 while loop:
                     payload = get_payload(iv=False)
                     check_payload_eax_ecb(payload, 'd')
@@ -381,7 +381,7 @@ try:
 
             elif mode == '6':
                 mode = '0'
-                # enc des ofb
+                # des ofb
                 while loop:
                     payload = get_payload(iv=True)
                     check_payload_cbc_cfb_ofb(payload, 'd')
@@ -406,7 +406,7 @@ try:
 
             if mode == '1':
                 mode = '0'
-                # enc 3des cbc
+                # 3des cbc
                 while loop:
                     payload = get_payload(iv=True)
                     check_payload_cbc_cfb_ofb(payload, 'ddd')
@@ -418,7 +418,7 @@ try:
 
             elif mode == '2':
                 mode = '0'
-                # enc 3des cfb
+                # 3des cfb
                 while loop:
                     payload = get_payload(iv=True)
                     check_payload_cbc_cfb_ofb(payload, 'ddd')
@@ -430,7 +430,7 @@ try:
 
             elif mode == '3':
                 mode = '0'
-                # enc 3des ctr
+                # 3des ctr
                 while loop:
                     payload = get_payload(iv=True)
                     check_payload_ctr(payload, 'ddd')
@@ -442,7 +442,7 @@ try:
 
             elif mode == '4':
                 mode = '0'
-                # enc 3des eax
+                # 3des eax
                 while loop:
                     payload = get_payload(iv=True)
                     check_payload_eax_ecb(payload, 'ddd')
@@ -454,7 +454,7 @@ try:
 
             elif mode == '5':
                 mode = '0'
-                # enc 3des ecb
+                # 3des ecb
                 while loop:
                     payload = get_payload(iv=False)
                     check_payload_eax_ecb(payload, 'ddd')
@@ -466,7 +466,7 @@ try:
 
             elif mode == '6':
                 mode = '0'
-                # enc 3des ofb
+                # 3des ofb
                 while loop:
                     payload = get_payload(iv=True)
                     check_payload_cbc_cfb_ofb(payload, 'ddd')

@@ -1,11 +1,14 @@
 dist
 build
+backup
 
 *.docx
+*.pdf
 *.enc
 test.py
 test2.py
 tmp.txt
+備註.txt
 DES_CBC_Encryption.py
 *__pycache__
 *.clip

@@ -10,6 +10,7 @@ test2.py
 tmp.txt
 備註.txt
 DES_CBC_Encryption.py
+pack.bat
 *__pycache__
 *.clip
 *.png

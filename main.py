@@ -1,4 +1,4 @@
-VERSION = '1.5.0'
+VERSION = '1.5.1'
 
 
 print('+----------------------------------------------------------------------------------------------------------------+')
@@ -541,7 +541,7 @@ while True:
                 while loop:
                     payload = get_payload(iv=False)
                     check_payload(payload, ['aes', 'ecb'])
-                file = EncDec(payload[0], [AES.new(key=payload[1], mode=AES.MODE_ECB, iv=payload[2]), AES.new(key=payload[1], mode=AES.MODE_ECB)], padding=AES.block_size)
+                file = EncDec(payload[0], [AES.new(key=payload[1], mode=AES.MODE_ECB), AES.new(key=payload[1], mode=AES.MODE_ECB)], padding=AES.block_size)
 
 
             elif selection == '6':

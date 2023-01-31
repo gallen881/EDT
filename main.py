@@ -1,4 +1,4 @@
-VERSION = '1.4.8'
+VERSION = '1.5.0'
 
 
 print('+----------------------------------------------------------------------------------------------------------------+')
@@ -34,11 +34,12 @@ time.sleep(0.9)
 import os
 from Cryptodome.Cipher import DES
 from Cryptodome.Cipher import DES3
+from Cryptodome.Cipher import AES
 from Cryptodome.Cipher import ChaCha20
 from Cryptodome.Cipher import Salsa20
 
 
-def print_mode(l, da=None):
+def print_selection(l, da=None):
     if l == 'l1':
         print('\n\n')
         print('[1]: Encrypt')
@@ -50,7 +51,7 @@ def print_mode(l, da=None):
         print('\n')
         print('[1]: DES')
         print('[2]: 3DES')
-        print('[3]: AES (not working)')
+        print('[3]: AES')
         print('[4]: ChaCha20')
         print('[5]: Salsa20')
         print('[6]: Blowfish (not working)')
@@ -73,10 +74,9 @@ def print_mode(l, da=None):
             print('[7]: CCM')
             print('[8]: GCM')
             print('[9]: OCB')
-            print('[10]: SIV')
-            print('[11]: Help')
-            print('[12]: Info')
-            print('[13]: Exit')
+            print('[10]: Help')
+            print('[11]: Info')
+            print('[12]: Exit')
 
 
 loop = True
@@ -129,98 +129,137 @@ def get_payload(iv: bool):
         return [path, key]
 
 
-def check_path(path: str):
+def check_path(path: str) -> bool:
     if not os.path.exists(path):
         print('Wrong path')
         return False
     return True
 
 
-def check_des_key(key: bytes):
+def check_des_key(key: bytes) -> bool:
     if len(key) != DES.key_size:
         print(f'Incorrect DES key length ({len(key)} bytes)')
         print(f'Should be {DES.key_size} bytes')
         return False
     return True
 
-def check_3des_key(key: bytes):
+def check_3des_key(key: bytes) -> bool:
     if len(key) not in  DES3.key_size:
         print(f'Incorrect DES key length ({len(key)} bytes)')
-        print(f'Should be {DES3.key_size[0]} or {DES3.key_size[1]} bytes')
+        print('Should be', end=' ')
+        count = 0
+        for i in DES3.key_size:
+            if count == len(DES3.key_size) - 2:
+                print(i, end=' or ')
+            elif count == len(DES3.key_size) - 1:
+                print(i, end=' Bytes\n')
+            else:
+                print(i, end=', ')
+            count += 1
+        return False
+    return True
+
+def check_aes_key(key: bytes) -> bool:
+    if len(key) not in AES.key_size:
+        print(f'Incorrect AES key length ({len(key)} bytes)')
+        print('Should be', end=' ')
+        count = 0
+        for i in AES.key_size:
+            if count == len(AES.key_size) - 2:
+                print(i, end=' or ')
+            elif count == len(AES.key_size) - 1:
+                print(i, end=' bytes\n')
+            else:
+                print(i, end=', ')
+            count += 1
+        return False
+    return True
+
+def check_chacha20_key(key: bytes) -> bool:
+    if len(key) != ChaCha20.key_size:
+        print(f'Incorrect ChaCha20 key length ({len(key)} bytes)')
+        print(f'Should be {ChaCha20.key_size} bytes')
+        return False
+    return True
+
+def check_chacha20_iv(iv: bytes) -> bool:
+    if len(iv) in [8, 12, 24]:
+        print(f'Incorrect ChaCha20 iv length ({len(payload[2])} bytes)')
+        print('Should be 8, 12 or 24 bytes')
+        return False
+    return True
+
+def check_salsa20_key(key: bytes) -> bool:
+    if len(key) in Salsa20.key_size:
+        print(f'Incorrect Salsa20 key length ({len(key)} bytes)')
+        print(f'Should be {Salsa20.key_size[0]} or {Salsa20.key_size[1]} bytes')
+        return False
+    return True
+
+def check_salsa20_iv(iv: bytes) -> bool:
+    if len(iv) == 8:
+        print(f'Incorrect Salsa20 iv length ({len(payload[2])} bytes)')
+        print('Should be 8 bytes')
         return False
     return True
 
 
-def check_payload_cbc_cfb_ofb(payload, d3):
+def check_payload(payload, mode: list):
     a = check_path(payload[0])
-    if d3 == 'd':
-        b = check_des_key(payload[1])
-    elif d3 == 'ddd':
-        b = check_3des_key(payload[1])
-    c = True
-    if len(payload[2]) != 8:
-        print(f'Incorrect DES iv length ({len(payload[2])} bytes)')
-        print('Should be 8 bytes')
-        c = False
+    if mode[0] in ['des', '3des']:
+        if mode[0] == 'des':
+            b = check_des_key(payload[1])
+        elif mode[0] == '3des':
+            b = check_3des_key(payload[1])
+        c = True
+        if mode[1] in ['cbc', 'cfb', 'ofb']:
+            if len(payload[2]) != 8:
+                print(f'Incorrect DES/3DES iv length ({len(payload[2])} bytes)')
+                print('Should be 8 bytes')
+                c = False
+        elif mode[1] == 'ctr':
+            if len(payload[2]) >= 8:
+                print(f'Incorrect DES/3DES iv length ({len(payload[2])} bytes)')
+                print('Should be smaller 8 than bytes')
+                c = False
+        elif mode[1] in ['eax', 'ecb']:
+            pass
+
+    elif mode[0] == 'aes':
+        b = check_aes_key(payload[1])
+        c = True
+        if mode[1] in ['cbc', 'cfb', 'ofb']:
+            if len(payload[2]) != 16:
+                print(f'Incorrect AES iv length ({len(payload[2])} bytes)')
+                print('Should be 16 bytes')
+                c = False
+        elif mode[1] in ['ctr', 'ocb']:
+            if len(payload[2]) >= 16:
+                print(f'Incorrect AES iv length ({len(payload[2])} bytes)')
+                print('Should be smaller than 16 bytes')
+                c = False
+        elif mode[1] == 'ccm':
+            if len(payload[2]) < 7 or len(payload[2]) > 13:
+                print(f'Incorrect AES iv length ({len(payload[2])} bytes)')
+                print('Should be 7~13 bytes')
+                c = False
+        elif mode[1] in ['eax', 'ecb', 'gcm']:
+            pass
+
+    elif mode[0] == 'chacha20':
+        b = check_chacha20_key(payload[1])
+        c = check_chacha20_iv(payload[2])
+
+    elif mode[0] == 'salsa20':
+        b = check_salsa20_key(payload[1])
+        c = check_salsa20_iv(payload[2])
+
+    elif mode[0] == 'blowfish':
+        pass
+
     if a and b and c:
         global loop
         loop = False
-
-def check_payload_ctr(payload, d3):
-    a = check_path(payload[0])
-    if d3 == 'd':
-        b = check_des_key(payload[1])
-    elif d3 == 'ddd':
-        b = check_3des_key(payload[1])
-    c = True
-    if len(payload[2]) >= 8:
-        print(f'Incorrect DES iv length ({len(payload[2])} bytes)')
-        print('Should be smaller 8 bytes')
-        c = False
-    if a and b and c:
-        global loop
-        loop = False
-
-def check_payload_eax_ecb(payload, d3):
-    a = check_path(payload[0])
-    if d3 == 'd':
-        b = check_des_key(payload[1])
-    elif d3 == 'ddd':
-        b = check_3des_key(payload[1])
-    if a and b:
-        global loop
-        loop = False
-
-def check_payload_salsa20(payload):
-    a = check_path(payload[0])
-    b = len(payload[1]) in Salsa20.key_size
-    c = len(payload[2]) == 8
-    if a and b and c:
-        global loop
-        loop = False
-    else:
-        if not b:
-            print(f'Incorrect Salsa20 key length ({len(payload[1])} bytes)')
-            print(f'Should be {Salsa20.key_size[0]} or {Salsa20.key_size[1]} bytes')
-        if not c:
-            print(f'Incorrect Salsa20 iv length ({len(payload[2])} bytes)')
-            print('Should be 8 bytes')
-
-def check_payload_chacha20(payload):
-    a = check_path(payload[0])
-    b = len(payload[1]) == ChaCha20.key_size
-    c = len(payload[2]) in [8, 12, 24]
-    if a and b and c:
-        global loop
-        loop = False
-    else:
-        if not b:
-            print(f'Incorrect ChaCha20 key length ({len(payload[1])} bytes)')
-            print(f'Should be {ChaCha20.key_size} bytes')
-        if not c:
-            print(f'Incorrect ChaCha20 iv length ({len(payload[2])} bytes)')
-            print('Should be 8, 12 or 24 bytes')    
-
 
 
 
@@ -292,232 +331,301 @@ class EncDec:
 
 
 
-try:
-    while True:
-        print_mode('l1')
-        mode = input('?:')
+while True:
+    try:
+        print_selection('l1')
+        selection = input('?:')
 
-        if mode == '1':
+        if selection == '1':
             enc_or_dec = 'enc'
-        elif mode == '2':
+        elif selection == '2':
             enc_or_dec = 'dec'
-        elif mode in ['3', 'help']:
+        elif selection in ['3', 'help']:
             help()
             continue
-        elif mode == '4' or mode == 'info' or mode == 'version':
-            print(mode)
+        elif selection == '4' or selection == 'info' or selection == 'version':
+            print(selection)
             info()
             continue
-        elif mode == '5' or mode == 'exit' or mode == 'leave':
+        elif selection == '5' or selection == 'exit' or selection == 'leave':
             os._exit(0)
 
-        print_mode('l2')
-        mode = input('?:')
+        print_selection('l2')
+        selection = input('?:')
 
-        if mode == '1':
-            print_mode('l3', 'd')
-            mode = input('?:')
+        if selection == '1':
+            print_selection('l3', 'd')
+            selection = input('?:')
 
-            if mode == '1':
-                mode = '0'
+            if selection == '1':
+                selection = '0'
                 # des cbc
                 while loop:
                     payload = get_payload(iv=True)
-                    check_payload_cbc_cfb_ofb(payload, 'd')
+                    check_payload(payload, ['des', 'cbc'])
                 file = EncDec(payload[0], [DES.new(key=payload[1], mode=DES.MODE_CBC, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_CBC, iv=payload[2])], padding=DES.block_size)
-                if enc_or_dec == 'enc':
-                    file.encrypt()
-                elif enc_or_dec == 'dec':
-                    file.decrypt()
+
                     
 
-            elif mode == '2':
-                mode = '0'
+            elif selection == '2':
+                selection = '0'
                 # des cfb
                 while loop:
                     payload = get_payload(iv=True)
-                    check_payload_cbc_cfb_ofb(payload, 'd')
+                    check_payload(payload, ['des', 'cfb'])
                 file = EncDec(payload[0], [DES.new(key=payload[1], mode=DES.MODE_CFB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_CFB, iv=payload[2])])
-                if enc_or_dec == 'enc':
-                    file.encrypt()
-                elif enc_or_dec == 'dec':
-                    file.decrypt()
 
-            elif mode == '3':
-                mode = '0'
+
+            elif selection == '3':
+                selection = '0'
                 # des ctr
                 while loop:
                     payload = get_payload(iv=True)
-                    check_payload_ctr(payload, 'd')
+                    check_payload(payload, ['des', 'ctr'])
                 file = EncDec(payload[0], [DES.new(key=payload[1], mode=DES.MODE_CTR, nonce=payload[2]), DES.new(key=payload[1], mode=DES.MODE_CTR, nonce=payload[2])])
-                if enc_or_dec == 'enc':
-                    file.encrypt()
-                elif enc_or_dec == 'dec':
-                    file.decrypt()
 
-            elif mode == '4':
-                mode = '0'
+
+            elif selection == '4':
+                selection = '0'
                 # des eax
                 while loop:
                     payload = get_payload(iv=True)
-                    check_payload_eax_ecb(payload, 'd')
+                    check_payload(payload, ['des', 'eax'])
                 file = EncDec(payload[0], [DES.new(key=payload[1], mode=DES.MODE_EAX, nonce=payload[2]), DES.new(key=payload[1], mode=DES.MODE_EAX, nonce=payload[2])])
-                if enc_or_dec == 'enc':
-                    file.encrypt()
-                elif enc_or_dec == 'dec':
-                    file.decrypt()
 
-            elif mode == '5':
-                mode = '0'
+
+            elif selection == '5':
+                selection = '0'
                 # des ecb
                 while loop:
                     payload = get_payload(iv=False)
-                    check_payload_eax_ecb(payload, 'd')
-                file = EncDec(payload[0], [DES.new(key=payload[1], mode=DES.MODE_ECB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_ECB)], padding=DES.block_size)
-                if enc_or_dec == 'enc':
-                    file.encrypt()
-                elif enc_or_dec == 'dec':
-                    file.decrypt()
+                    check_payload(payload, ['des', 'ecb'])
+                file = EncDec(payload[0], [DES.new(key=payload[1], mode=DES.MODE_ECB), DES.new(key=payload[1], mode=DES.MODE_ECB)], padding=DES.block_size)
 
-            elif mode == '6':
-                mode = '0'
+
+            elif selection == '6':
+                selection = '0'
                 # des ofb
                 while loop:
                     payload = get_payload(iv=True)
-                    check_payload_cbc_cfb_ofb(payload, 'd')
+                    check_payload(payload, ['des', 'ofb'])
                 file = EncDec(payload[0], [DES.new(key=payload[1], mode=DES.MODE_OFB, iv=payload[2]), DES.new(key=payload[1], mode=DES.MODE_OFB, iv=payload[2])])
-                if enc_or_dec == 'enc':
-                    file.encrypt()
-                elif enc_or_dec == 'dec':
-                    file.decrypt()
 
-            elif mode in ['7', 'help']:
+
+            elif selection in ['7', 'help']:
                 help()
+                enc_or_dec = None
 
-            elif mode in ['8', 'info', 'version']:
+            elif selection in ['8', 'info', 'version']:
                 info()
+                enc_or_dec = None
 
-            elif mode in ['9', 'exit', 'leave']:
+            elif selection in ['9', 'exit', 'leave']:
+                enc_or_dec = None
                 break
 
-        elif mode == '2':
-            print_mode('l3', 'd')
-            mode = input('?:')
+        elif selection == '2':
+            print_selection('l3', 'd')
+            selection = input('?:')
 
-            if mode == '1':
-                mode = '0'
+            if selection == '1':
+                selection = '0'
                 # 3des cbc
                 while loop:
                     payload = get_payload(iv=True)
-                    check_payload_cbc_cfb_ofb(payload, 'ddd')
+                    check_payload(payload, ['3des', 'cbc'])
                 file = EncDec(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_CBC, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_CBC, iv=payload[2])], padding=DES3.block_size)
-                if enc_or_dec == 'enc':
-                    file.encrypt()
-                elif enc_or_dec == 'dec':
-                    file.decrypt()
 
-            elif mode == '2':
-                mode = '0'
+
+            elif selection == '2':
+                selection = '0'
                 # 3des cfb
                 while loop:
                     payload = get_payload(iv=True)
-                    check_payload_cbc_cfb_ofb(payload, 'ddd')
+                    check_payload(payload, ['3des', 'cfb'])
                 file = EncDec(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_CFB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_CFB, iv=payload[2])])
-                if enc_or_dec == 'enc':
-                    file.encrypt()
-                elif enc_or_dec == 'dec':
-                    file.decrypt()
 
-            elif mode == '3':
-                mode = '0'
+
+            elif selection == '3':
+                selection = '0'
                 # 3des ctr
                 while loop:
                     payload = get_payload(iv=True)
-                    check_payload_ctr(payload, 'ddd')
+                    check_payload(payload, ['3des', 'ctr'])
                 file = EncDec(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_CTR, nonce=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_CTR, nonce=payload[2])])
-                if enc_or_dec == 'enc':
-                    file.encrypt()
-                elif enc_or_dec == 'dec':
-                    file.decrypt()
 
-            elif mode == '4':
-                mode = '0'
+
+            elif selection == '4':
+                selection = '0'
                 # 3des eax
                 while loop:
                     payload = get_payload(iv=True)
-                    check_payload_eax_ecb(payload, 'ddd')
+                    check_payload(payload, ['3des', 'eax'])
                 file = EncDec(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_EAX, nonce=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_EAX, nonce=payload[2])])
-                if enc_or_dec == 'enc':
-                    file.encrypt()
-                elif enc_or_dec == 'dec':
-                    file.decrypt()
 
-            elif mode == '5':
-                mode = '0'
+
+            elif selection == '5':
+                selection = '0'
                 # 3des ecb
                 while loop:
                     payload = get_payload(iv=False)
-                    check_payload_eax_ecb(payload, 'ddd')
+                    check_payload(payload, ['3des', 'ecb'])
                 file = EncDec(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_ECB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_ECB)], padding=DES3.block_size)
-                if enc_or_dec == 'enc':
-                    file.encrypt()
-                elif enc_or_dec == 'dec':
-                    file.decrypt()
 
-            elif mode == '6':
-                mode = '0'
+
+            elif selection == '6':
+                selection = '0'
                 # 3des ofb
                 while loop:
                     payload = get_payload(iv=True)
-                    check_payload_cbc_cfb_ofb(payload, 'ddd')
+                    check_payload(payload, ['3des', 'ofb'])
                 file = EncDec(payload[0], [DES3.new(key=payload[1], mode=DES3.MODE_OFB, iv=payload[2]), DES3.new(key=payload[1], mode=DES3.MODE_OFB, iv=payload[2])])
-                if enc_or_dec == 'enc':
-                    file.encrypt()
-                elif enc_or_dec == 'dec':
-                    file.decrypt()
 
-            elif mode in ['7', 'help']:
+
+            elif selection in ['7', 'help']:
                 help()
+                enc_or_dec = None
 
-            elif mode in ['8', 'info', 'version']:
+            elif selection in ['8', 'info', 'version']:
                 info()
+                enc_or_dec = None
 
-            elif mode in ['9', 'exit', 'leave']:
+            elif selection in ['9', 'exit', 'leave']:
+                enc_or_dec = None
                 break
 
-        elif mode == '4':
-            mode = '0'
+        if selection == '3':
+            print_selection('l3', 'a')
+            selection = input('?:')
+
+            if selection == '1':
+                selection = '0'
+                # aes cbc
+                while loop:
+                    payload = get_payload(iv=True)
+                    check_payload(payload, ['aes', 'cbc'])
+                file = EncDec(payload[0], [AES.new(key=payload[1], mode=AES.MODE_CBC, iv=payload[2]), AES.new(key=payload[1], mode=AES.MODE_CBC, iv=payload[2])], padding=AES.block_size)
+
+                    
+
+            elif selection == '2':
+                selection = '0'
+                # aes cfb
+                while loop:
+                    payload = get_payload(iv=True)
+                    check_payload(payload, ['aes', 'cfb'])
+                file = EncDec(payload[0], [AES.new(key=payload[1], mode=AES.MODE_CFB, iv=payload[2]), AES.new(key=payload[1], mode=AES.MODE_CFB, iv=payload[2])])
+
+
+            elif selection == '3':
+                selection = '0'
+                # aes ctr
+                while loop:
+                    payload = get_payload(iv=True)
+                    check_payload(payload, ['aes', 'ctr'])
+                file = EncDec(payload[0], [AES.new(key=payload[1], mode=AES.MODE_CTR, nonce=payload[2]), AES.new(key=payload[1], mode=AES.MODE_CTR, nonce=payload[2])])
+
+
+            elif selection == '4':
+                selection = '0'
+                # aes eax
+                while loop:
+                    payload = get_payload(iv=True)
+                    check_payload(payload, ['aes', 'eax'])
+                file = EncDec(payload[0], [AES.new(key=payload[1], mode=AES.MODE_EAX, nonce=payload[2]), AES.new(key=payload[1], mode=AES.MODE_EAX, nonce=payload[2])])
+
+
+            elif selection == '5':
+                selection = '0'
+                # aes ecb
+                while loop:
+                    payload = get_payload(iv=False)
+                    check_payload(payload, ['aes', 'ecb'])
+                file = EncDec(payload[0], [AES.new(key=payload[1], mode=AES.MODE_ECB, iv=payload[2]), AES.new(key=payload[1], mode=AES.MODE_ECB)], padding=AES.block_size)
+
+
+            elif selection == '6':
+                selection = '0'
+                # aes ofb
+                while loop:
+                    payload = get_payload(iv=True)
+                    check_payload(payload, ['aes', 'ofb'])
+                file = EncDec(payload[0], [AES.new(key=payload[1], mode=AES.MODE_OFB, iv=payload[2]), AES.new(key=payload[1], mode=AES.MODE_OFB, iv=payload[2])])
+
+
+            elif selection == '7':
+                selection = '0'
+                # aes ccm
+                while loop:
+                    payload = get_payload(iv=True)
+                    check_payload(payload, ['aes', 'ccm'])
+                file = EncDec(payload[0], [AES.new(key=payload[1], mode=AES.MODE_CCM, nonce=payload[2]), AES.new(key=payload[1], mode=AES.MODE_CCM, nonce=payload[2])])
+
+
+            elif selection == '8':
+                selection = '0'
+                # aes gcm
+                while loop:
+                    payload = get_payload(iv=True)
+                    check_payload(payload, ['aes', 'gcm'])
+                file = EncDec(payload[0], [AES.new(key=payload[1], mode=AES.MODE_GCM, nonce=payload[2]), AES.new(key=payload[1], mode=AES.MODE_GCM, nonce=payload[2])])
+
+
+            elif selection == '9':
+                selection = '0'
+                # aes ocb
+                while loop:
+                    payload = get_payload(iv=True)
+                    check_payload(payload, ['aes', 'ocb'])
+                file = EncDec(payload[0], [AES.new(key=payload[1], mode=AES.MODE_OCB, nonce=payload[2]), AES.new(key=payload[1], mode=AES.MODE_OCB, nonce=payload[2])], padding=AES.block_size)
+
+
+            elif selection in ['10', 'help']:
+                help()
+                enc_or_dec = None
+
+            elif selection in ['11', 'info', 'version']:
+                info()
+                enc_or_dec = None
+
+            elif selection in ['12', 'exit', 'leave']:
+                enc_or_dec = None
+                break
+
+        elif selection == '4':
+            selection = '0'
             # chacha20
             while loop:
                 payload = get_payload(iv=True)
-                check_payload_chacha20(payload)
+                check_payload(payload, ['chacha20', None])
             file = EncDec(payload[0], [ChaCha20.new(key=payload[1], nonce=payload[2]), ChaCha20.new(key=payload[1], nonce=payload[2])])
-            if enc_or_dec == 'enc':
-                file.encrypt()
-            elif enc_or_dec == 'dec':
-                file.decrypt()
 
-        elif mode == '5':
-            mode = '0'
+
+        elif selection == '5':
+            selection = '0'
             # salsa20
             while loop:
                 payload = get_payload(iv=True)
-                check_payload_salsa20(payload)
+                check_payload(payload, ['salsa20', None])
             file = EncDec(payload[0], [Salsa20.new(key=payload[1], nonce=payload[2]), Salsa20.new(key=payload[1], nonce=payload[2])])
-            if enc_or_dec == 'enc':
-                file.encrypt()
-            elif enc_or_dec == 'dec':
-                file.decrypt()
 
-        elif mode in ['7', 'help']:
+
+        elif selection in ['7', 'help']:
             help()
+            enc_or_dec = None
 
-        elif mode in ['8', 'info', 'version']:
+        elif selection in ['8', 'info', 'version']:
             info()
-
-        elif mode in ['9', 'exit', 'leave']:
+            enc_or_dec = None
+        elif selection in ['9', 'exit', 'leave']:
+            enc_or_dec = None
             break
 
 
-except Exception as e:
-    print(e)
+        if enc_or_dec == 'enc':
+            file.encrypt()
+        elif enc_or_dec == 'dec':
+            file.decrypt()
+
+    except Exception as e:
+        print(e)

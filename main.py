@@ -39,7 +39,7 @@ from Cryptodome.Cipher import ChaCha20
 from Cryptodome.Cipher import Salsa20
 
 
-def print_selection(l, da=None):
+def print_menu(l, da=None):
     if l == 'l1':
         print('\n\n')
         print('[1]: Encrypt')
@@ -86,7 +86,7 @@ def info():
     print('\n')
     print('Python 3.9.12')
     print('Author: 和泉かやと')
-    print('Date: 2023/01/02')
+    print('Date: 2023/02/05')
     print(f'Version: {VERSION}')
     print('https://github.com/GallenWang/EDT')
     print('Thanks for using this tool. If it is helpful to you, please give me the star!')
@@ -281,7 +281,7 @@ class EncDec:
     def encrypt(self) -> bytes:
         '''
         `enc`: [enc, enc]
-        `padding`: [bool, block_size]
+        `padding`: block_size
         '''
         with open(self.path, 'rb') as file:
             self.plain = file.read()
@@ -303,7 +303,7 @@ class EncDec:
     def decrypt(self) -> bytes:
         '''
         `enc`: [enc, enc]
-        `padding`: [bool, block_size]
+        `padding`: block_size
         '''
         with open(self.path, 'rb') as file:
             self.cipher = file.read()
@@ -333,7 +333,7 @@ class EncDec:
 
 while True:
     try:
-        print_selection('l1')
+        print_menu('l1')
         selection = input('?:')
 
         if selection == '1':
@@ -350,11 +350,11 @@ while True:
         elif selection == '5' or selection == 'exit' or selection == 'leave':
             os._exit(0)
 
-        print_selection('l2')
+        print_menu('l2')
         selection = input('?:')
 
         if selection == '1':
-            print_selection('l3', 'd')
+            print_menu('l3', 'd')
             selection = input('?:')
 
             if selection == '1':
@@ -425,7 +425,7 @@ while True:
                 break
 
         elif selection == '2':
-            print_selection('l3', 'd')
+            print_menu('l3', 'd')
             selection = input('?:')
 
             if selection == '1':
@@ -495,7 +495,7 @@ while True:
                 break
 
         if selection == '3':
-            print_selection('l3', 'a')
+            print_menu('l3', 'a')
             selection = input('?:')
 
             if selection == '1':
